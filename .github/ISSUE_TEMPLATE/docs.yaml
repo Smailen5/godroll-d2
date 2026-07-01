@@ -1,0 +1,41 @@
+name: Documentazione
+description: Aggiungi o aggiorna la documentazione del progetto (README, guide, commenti)
+title: 'docs: [descrizione breve]'
+labels: ['docs']
+assignees: 'Smailen5'
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Descrivi quale parte della documentazione necessita di interventi.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Descrizione
+      description: "Quale documento o sezione va aggiornata e perche'?"
+      placeholder: "Mancano le istruzioni su come aggiungere un nuovo roll nella wishlist."
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Criteri di Accettazione
+      description: "Cosa deve includere il documento aggiornato?"
+      placeholder: |
+        - Guida chiara su come trovare l'ID item su light.gg
+        - Esempio concreto di compilazione
+    validations:
+      required: true
+
+  - type: textarea
+    id: task
+    attributes:
+      label: Task
+      description: "Cosa bisogna scrivere o modificare concretamente."
+      placeholder: |
+        - [ ] Aggiungere sezione "Come trovare l'ID item"
+        - [ ] Aggiungere esempio di issue compilata
+    validations:
+      required: true
