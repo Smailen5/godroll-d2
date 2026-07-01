@@ -1,5 +1,8 @@
 # godroll-d2
 
+[![GitHub Release](https://img.shields.io/github/v/release/Smailen5/godroll-d2?style=flat-square&logo=github)](https://github.com/Smailen5/godroll-d2/releases)
+[![GitHub Last Commit](https://img.shields.io/github/last-commit/Smailen5/godroll-d2?style=flat-square&logo=github)](https://github.com/Smailen5/godroll-d2/commits/main)
+
 Repository personale per salvare i god roll di Destiny 2 da utilizzare con DIM (Destiny Item Manager).
 
 ## Scopo
@@ -38,3 +41,13 @@ dimwishlist:item=214545213&perks=3661387068,106909392,776531651,2048641572,85985
 5. Salva e ricarica DIM
 
 I roll salvati appariranno con un'icona a forma di pollice in su sugli oggetti corrispondenti nel tuo inventario.
+
+## Come contribuire
+
+Se vuoi aggiungere un nuovo roll, modificare uno esistente o segnalare un errore, consulta la [guida alla contribuzione](CONTRIBUTING.md).
+
+Tutti i contributi sono benvenuti, sia da membri del clan che da sviluppatori.
+
+## Licenza
+
+Distribuito con licenza MIT. Vedi il file [LICENSE](LICENSE) per i dettagli.
