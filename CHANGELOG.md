@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/Smailen5/godroll-d2/compare/v0.2.0...v0.2.1) (2026-07-01)
+
+
+### Documentazione
+
+* corregge visualizzazione del badge ([#14](https://github.com/Smailen5/godroll-d2/issues/14)) ([15f26d7](https://github.com/Smailen5/godroll-d2/commit/15f26d7d1e37b1c42e7793d45a7ce9b0f488dcee))
+
 ## [0.2.0](https://github.com/Smailen5/godroll-d2/compare/v0.1.0...v0.2.0) (2026-07-01)
 
 
