@@ -16,16 +16,40 @@ Vai alla scheda [Issues](https://github.com/Smailen5/godroll-d2/issues) e clicca
 | **Modifica roll** | Un roll esistente ha perk o note sbagliate |
 | **Eliminazione roll** | Un roll non e' piu' valido (nerfato, sostituito, ecc.) |
 
-### 2. Compila i campi richiesti
+### 2. Trova la stringa del roll su DIM
 
-Ogni template ti guidera' con campi specifici. Le informazioni principali che ti serviranno:
+DIM ti permette di copiare direttamente la stringa del roll che vuoi consigliare. Ecco come fare:
 
-- **Nome dell'arma** — il nome esatto come appare in Destiny 2
-- **ID item** — lo trovi su [light.gg](https://www.light.gg) cercando l'arma e prendendo il numero dall'URL
-- **Perk IDs** — i codici numerici dei perk consigliati
-- **Note** — una breve descrizione dell'utilizzo del roll (es. "Ottimo per PvE, sinergia con xxx")
+#### Se hai l'arma nell'inventario
 
-### 3. Aspetta la revisione
+1. Apri [DIM](https://app.destinyitemmanager.com/)
+2. Trova l'arma nel tuo inventario e **cliccaci sopra**
+3. Si apre una scheda con i dettagli dell'arma. **Clicca sul nome dell'arma** (in alto, di fianco all'icona)
+4. Si apre una finestra piu' grande. Qui puoi **selezionare i perk** che vuoi consigliare cliccando sulle caselle dei vari slot
+5. Una volta selezionati i perk giusti, in basso trovi il pulsante **"Copia le peculiarita' selezionate come roll lista desideri"**
+6. Cliccalo: la stringa del roll viene copiata automaticamente
+
+#### Se non hai l'arma
+
+1. Apri [DIM](https://app.destinyitemmanager.com/)
+2. Usa la **barra di ricerca** in alto e digita il nome dell'arma
+3. Clicca sul risultato della ricerca: si apre direttamente la finestra grande con tutti gli slot dei perk
+4. **Seleziona i perk** che vuoi consigliare
+5. In basso, clicca **"Copia le peculiarita' selezionate come roll lista desideri"**
+
+#### Alternativa: copia manuale
+
+Nella stessa finestra, di fianco al pulsante, c'e' anche la stringa completa del roll. Puoi **copiarla manualmente** se preferisci.
+
+### 3. Compila la issue
+
+Ora che hai la stringa del roll, apri la issue e incollala nel campo appropriato. Il template ti guidera' con tutti i campi:
+
+- **Stringa del roll** — incolla qui la stringa copiata da DIM
+- **Note** — una breve descrizione dell'utilizzo (es. "Ottimo per PvE, sinergia con xyz")
+- **Fonte** — chi ha consigliato questo roll (es. "Consigliato da Ascanio", "Trovato su light.gg")
+
+### 4. Aspetta la revisione
 
 Un maintainer verifichera' la richiesta e provvedera' ad aggiungere il roll alla wishlist.
 
