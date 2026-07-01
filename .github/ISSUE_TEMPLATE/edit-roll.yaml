@@ -1,0 +1,45 @@
+name: Modifica Roll
+description: Modifica un roll esistente nella wishlist
+title: 'fix: modifica roll [nome arma]'
+labels: ['fix']
+assignees: 'Smailen5'
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Qualcosa non va in un roll gia' presente? Segnala qui la modifica.
+
+  - type: input
+    id: weapon_name
+    attributes:
+      label: Nome dell'arma da modificare
+      description: "Come appare nella wishlist attuale"
+      placeholder: "Fame Ruggente"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: change_type
+    attributes:
+      label: Cosa vuoi modificare?
+      options:
+        - label: Perk sbagliati
+        - label: Note da aggiornare
+        - label: Roll duplicato
+        - label: Altro (specifica nei dettagli)
+
+  - type: textarea
+    id: details
+    attributes:
+      label: Dettagli della modifica
+      description: "Spiega nel dettaglio cosa va corretto e come dovrebbe essere"
+      placeholder: "Il perk [nome] non e' quello giusto, dovrebbe essere [nome corretto] perche'..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: new_string
+    attributes:
+      label: Nuova stringa del roll (se disponibile)
+      description: "Se hai gia' il roll corretto su DIM, incolla qui la stringa aggiornata"
+      placeholder: "dimwishlist:item=...&perks=...#notes:..."

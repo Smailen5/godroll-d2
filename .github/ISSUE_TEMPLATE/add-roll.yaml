@@ -1,0 +1,56 @@
+name: Aggiunta Roll
+description: Aggiungi un nuovo roll alla wishlist di Destiny 2
+title: 'feat: aggiunge roll [nome arma]'
+labels: ['feature']
+assignees: 'Smailen5'
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Grazie per voler contribuire! Compila i campi qui sotto per aggiungere un nuovo roll alla wishlist.
+
+        ### Come trovare la stringa del roll su DIM
+
+        1. Apri [DIM](https://app.destinyitemmanager.com/)
+        2. Trova o cerca l'arma, cliccaci sopra e poi clicca sul nome per aprire la finestra grande
+        3. Seleziona i perk che vuoi consigliare
+        4. In basso clicca **"Copia le peculiarita' selezionate come roll lista desideri"**
+        5. Incolla la stringa nel campo qui sotto
+
+  - type: input
+    id: roll_string
+    attributes:
+      label: Stringa del roll (da DIM)
+      description: "Incolla qui la stringa copiata da DIM (inizia con dimwishlist:item=...)"
+      placeholder: "dimwishlist:item=214545213&perks=3661387068,106909392,776531651,2048641572,859855990#notes:Roll consigliati da Ascanio"
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Note di utilizzo
+      description: "Descrivi brevemente a cosa serve questo roll (es. 'Ottimo per PvE, sinergia con xyz')"
+      placeholder: "Roll consigliato per attivita' PvE grazie alla sinergia tra i perk..."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: source
+    attributes:
+      label: Fonte del roll
+      description: "Da dove arriva questo roll?"
+      options:
+        - light.gg
+        - Consiglio del clan
+        - D2 Foundry
+        - Altro (specifica nelle note)
+    validations:
+      required: true
+
+  - type: input
+    id: suggested_by
+    attributes:
+      label: Consigliato da (opzionale)
+      description: "Chi ha suggerito questo roll? (es. nome del clanmate)"
+      placeholder: "Ascanio, Giuseppe, ecc."

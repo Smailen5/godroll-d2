@@ -1,0 +1,39 @@
+name: Eliminazione Roll
+description: Rimuovi un roll dalla wishlist
+title: 'fix: rimuove roll [nome arma]'
+labels: ['fix']
+assignees: 'Smailen5'
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Un roll non e' piu' valido? Segnala qui la rimozione.
+
+  - type: input
+    id: weapon_name
+    attributes:
+      label: Nome dell'arma da rimuovere
+      description: "Come appare nella wishlist attuale"
+      placeholder: "Fornace Esplosiva"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: reason
+    attributes:
+      label: Motivo della rimozione
+      options:
+        - Sostituito da un roll migliore
+        - Arma nerfata / non piu' competitiva
+        - Roll errato (perk sbagliati)
+        - Roll duplicato
+        - Altro
+    validations:
+      required: true
+
+  - type: textarea
+    id: details
+    attributes:
+      label: Dettagli (opzionale)
+      description: "Se vuoi aggiungere piu' contesto sulla rimozione"
+      placeholder: "L'arma e' stata nerfata nell'ultima stagione e non e' piu' competitiva per..."
