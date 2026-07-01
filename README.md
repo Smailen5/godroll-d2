@@ -1,7 +1,7 @@
 # godroll-d2
 
-[![GitHub Release](https://img.shields.io/github/v/release/Smailen5/godroll-d2?style=flat-square&logo=github)](https://github.com/Smailen5/godroll-d2/releases)
-[![GitHub Last Commit](https://img.shields.io/github/last-commit/Smailen5/godroll-d2?style=flat-square&logo=github)](https://github.com/Smailen5/godroll-d2/commits/main)
+![Release](https://img.shields.io/github/v/release/Smailen5/godroll-d2)
+![Last Commit](https://img.shields.io/github/last-commit/Smailen5/godroll-d2)
 
 Repository personale per salvare i god roll di Destiny 2 da utilizzare con DIM (Destiny Item Manager).
 
