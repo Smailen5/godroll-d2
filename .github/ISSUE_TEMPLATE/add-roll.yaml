@@ -17,12 +17,29 @@ body:
         4. In basso clicca **"Copia le peculiarita' selezionate come roll lista desideri"**
         5. Incolla la stringa nel campo qui sotto
 
-  - type: input
+  - type: textarea
     id: roll_string
     attributes:
       label: Stringa del roll (da DIM)
-      description: "Incolla qui la stringa copiata da DIM (inizia con dimwishlist:item=...)"
-      placeholder: "dimwishlist:item=214545213&perks=3661387068,106909392,776531651,2048641572,859855990#notes:Roll consigliati da Ascanio"
+      description: "Incolla qui la/e stringa/e copiate da DIM (una per riga). Se hai piu' varianti (es. PVP e PVE), incollale tutte."
+      placeholder: |-
+        dimwishlist:item=2150012407&perks=4090651448,1968497646,2846385770,460017080,1673863459
+        dimwishlist:item=2150012407&perks=4090651448,1968497646,2387244414,460017080,1673863459
+    validations:
+      required: true
+
+  - type: dropdown
+    id: activity_type
+    attributes:
+      label: Attivita' target
+      description: "Per che tipo di attivita' e' consigliato questo roll?"
+      options:
+        - PVP
+        - PVE
+        - Gambit
+        - Incursioni
+        - Boss
+        - Misto
     validations:
       required: true
 
