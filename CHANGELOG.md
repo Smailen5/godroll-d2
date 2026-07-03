@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.3.0](https://github.com/Smailen5/godroll-d2/compare/v0.2.0...v0.3.0) (2026-07-03)
+
+
+### Nuove funzionalità
+
+* aggiorna template add-roll per supportare roll multipli ([#22](https://github.com/Smailen5/godroll-d2/issues/22)) ([c4d79a8](https://github.com/Smailen5/godroll-d2/commit/c4d79a82fd21ea420088a47878c81147e13c7fa1))
+* aggiunge roll La Cuspide Logora ([#23](https://github.com/Smailen5/godroll-d2/issues/23)) ([67af05e](https://github.com/Smailen5/godroll-d2/commit/67af05ec84ba00bb216d03ee7169321fe83ec256))
+* aggiunge roll Vento Autunnale con due varianti PVP ([#25](https://github.com/Smailen5/godroll-d2/issues/25)) ([a4a6544](https://github.com/Smailen5/godroll-d2/commit/a4a65445d563b24fd77b3abbc87171daf4bdc158))
+
+
+### Documentazione
+
+* aggiorna documentazione per nuove convenzioni template ([#24](https://github.com/Smailen5/godroll-d2/issues/24)) ([57ba34c](https://github.com/Smailen5/godroll-d2/commit/57ba34c9ab55daba12fc7651a164d1fe7e7a7dd9))
+* corregge visualizzazione del badge ([#14](https://github.com/Smailen5/godroll-d2/issues/14)) ([15f26d7](https://github.com/Smailen5/godroll-d2/commit/15f26d7d1e37b1c42e7793d45a7ce9b0f488dcee))
+
 ## [0.2.0](https://github.com/Smailen5/godroll-d2/compare/v0.1.0...v0.2.0) (2026-07-01)
 
 
