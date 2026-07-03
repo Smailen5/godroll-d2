@@ -2,5 +2,8 @@
   "name": "godroll-d2",
   "version": "0.3.0",
   "private": true,
-  "description": "Wishlist personale e del clan per Destiny 2 su DIM"
+  "description": "Wishlist personale e del clan per Destiny 2 su DIM",
+  "scripts": {
+    "validate": "node scripts/validate.js"
+  }
 }
