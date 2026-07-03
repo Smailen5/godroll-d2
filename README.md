@@ -20,13 +20,22 @@ Il file `godroll-list-dim.txt` usa la sintassi DIM wishlist:
 
 ```
 // Nome Arma
-dimwishlist:item=<ID>&perks=<perk1>,<perk2>,...#notes:<descrizione>
+//notes:<fonte> (<attivita>): <descrizione>
+dimwishlist:item=<ID>&perks=<perk1>,<perk2>,...
+dimwishlist:item=<ID>&perks=<perk1>,<perk2>,... (altre varianti)
 ```
+
+- `// Nome Arma` — commento separatore tra le armi
+- `//notes:...` — block note che si applica a tutti i roll successivi fino al prossimo commento
+- Attivita' supportate: `PVP`, `PVE`, `Gambit`, `Incursioni`, `Boss`, `Misto`
 
 Esempio:
 ```
 // Fame Ruggente
-dimwishlist:item=214545213&perks=3661387068,106909392,776531651,2048641572,859855990#notes:Roll consigliati da Ascanio
+//notes:Ascanio (PVE): Roll per attivita' PvE
+dimwishlist:item=214545213&perks=3661387068,106909392,776531651,2048641572,859855990
+//notes:Ascanio (PVE): Roll perfetto per attivita' PvE
+dimwishlist:item=214545213&perks=839105230,3142289711,776531651,2048641572,859855990
 ```
 
 ## Come usare la lista su DIM

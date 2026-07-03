@@ -45,7 +45,8 @@ Nella stessa finestra, di fianco al pulsante, c'e' anche la stringa completa del
 
 Ora che hai la stringa del roll, apri la issue e incollala nel campo appropriato. Il template ti guidera' con tutti i campi:
 
-- **Stringa del roll** — incolla qui la stringa copiata da DIM
+- **Stringa del roll** — incolla qui la/e stringa/e copiate da DIM (una per riga). Se hai piu' varianti dello stesso roll (es. PVP e PVE), puoi incollarle tutte nella stessa issue.
+- **Attivita' target** — seleziona per che tipo di attivita' e' consigliato il roll (PVP, PVE, Gambit, Incursioni, Boss, Misto)
 - **Note** — una breve descrizione dell'utilizzo (es. "Ottimo per PvE, sinergia con xyz")
 - **Fonte** — chi ha consigliato questo roll (es. "Consigliato da Ascanio", "Trovato su light.gg")
 
