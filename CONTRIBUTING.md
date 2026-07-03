@@ -90,9 +90,26 @@ docs: aggiorna README con nuovi badge
 ### Come aprire una Pull Request
 
 1. Assicurati che il branch sia aggiornato con `main`
-2. Apri una PR su GitHub
-3. Il titolo deve seguire i Conventional Commits
-4. Nella descrizione, collega la issue risolta con `Closes #numero`
+2. Esegui `pnpm validate` per verificare la sintassi del file wishlist
+3. Apri una PR su GitHub
+4. Il titolo deve seguire i Conventional Commits
+5. Nella descrizione, collega la issue risolta con `Closes #numero`
+
+### Validazione locale
+
+Prima di pushare una PR, verifica che il file wishlist sia corretto:
+
+```bash
+pnpm validate
+```
+
+Questo comando controlla:
+- Sintassi corretta delle righe `dimwishlist:`
+- Presenza del commento separatore `// Nome Arma` prima di ogni roll
+- ID item e perk numerici validi
+- Assenza di roll duplicati
+
+Il controllo viene eseguito automaticamente anche dal CI su ogni PR.
 
 ### Cosa puoi modificare
 
