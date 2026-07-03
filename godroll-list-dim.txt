@@ -5,3 +5,6 @@ dimwishlist:item=214545213&perks=839105230,3142289711,776531651,2048641572,85985
 dimwishlist:item=52683113&perks=839105230,3142289711,3891536761,3824105627,2327629476#notes:Roll consigliato da light.gg
 // La Cuspide Logora
 dimwishlist:item=2204165992&perks=3250034553,3142289711,2387244414,460017080,1831023215#notes:PVP Consigliato
+// Vento Autunnale
+dimwishlist:item=2150012407&perks=4090651448,1968497646,2846385770,460017080,1673863459#notes:Smailen (PVP): Roll consigliato per il PVP secondo light.gg, telemetro
+dimwishlist:item=2150012407&perks=4090651448,1968497646,2387244414,460017080,1673863459#notes:Smailen (PVP): Roll consigliato per il PVP, momento zen invece di telemetro
