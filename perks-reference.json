@@ -1,0 +1,81 @@
+{
+  "3661387068": {
+    "name": "Compensatore contenuto",
+    "type": "barrel"
+  },
+  "106909392": {
+    "name": "Caricatore tattico",
+    "type": "magazine"
+  },
+  "776531651": {
+    "name": "Stretta repulsiva",
+    "type": "trait"
+  },
+  "2048641572": {
+    "name": "Proiettili destabilizzanti",
+    "type": "trait"
+  },
+  "859855990": {
+    "name": "Spara e corri",
+    "type": "origin"
+  },
+  "839105230": {
+    "name": "Direzione controllata",
+    "type": "barrel"
+  },
+  "3142289711": {
+    "name": "Proiettili rifiniti",
+    "type": "magazine"
+  },
+  "3891536761": {
+    "name": "Tremori cinetici",
+    "type": "trait"
+  },
+  "3824105627": {
+    "name": "Lucciola",
+    "type": "trait"
+  },
+  "2327629476": {
+    "name": "Forgia consanguinea",
+    "type": "origin"
+  },
+  "3250034553": {
+    "name": "Rigatura martellata",
+    "type": "barrel"
+  },
+  "2387244414": {
+    "name": "Momento zen",
+    "type": "trait"
+  },
+  "460017080": {
+    "name": "Cercateste",
+    "type": "trait"
+  },
+  "1831023215": {
+    "name": "Lupo furtivo",
+    "type": "origin"
+  },
+  "4090651448": {
+    "name": "Rigatura a spirale",
+    "type": "barrel"
+  },
+  "1968497646": {
+    "name": "Proiettili perforanti",
+    "type": "magazine"
+  },
+  "2846385770": {
+    "name": "Telemetro",
+    "type": "trait"
+  },
+  "1673863459": {
+    "name": "Ruggito di battaglia",
+    "type": "origin",
+    "enhancedId": "4236235115"
+  },
+  "4236235115": {
+    "name": "Ruggito di battaglia",
+    "type": "origin",
+    "enhanced": true,
+    "baseId": "1673863459"
+  }
+}
