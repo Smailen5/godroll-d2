@@ -5,6 +5,7 @@
   "description": "Wishlist personale e del clan per Destiny 2 su DIM",
   "scripts": {
     "validate": "node scripts/validate.js",
-    "fetch-perks": "node scripts/fetch-perks.js"
+    "fetch-perks": "node scripts/fetch-perks.js",
+    "add-roll-comments": "node scripts/add-roll-comments.js"
   }
 }
