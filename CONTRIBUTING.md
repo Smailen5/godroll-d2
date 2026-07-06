@@ -48,7 +48,7 @@ Ora che hai la stringa del roll, apri la issue e incollala nel campo appropriato
 - **Stringa del roll** — incolla qui la/e stringa/e copiate da DIM (una per riga). Se hai piu' varianti dello stesso roll (es. PVP e PVE), puoi incollarle tutte nella stessa issue.
 - **Attivita' target** — seleziona per che tipo di attivita' e' consigliato il roll (PVP, PVE, Gambit, Incursioni, Boss, Misto)
 - **Note** — una breve descrizione dell'utilizzo (es. "Ottimo per PvE, sinergia con xyz")
-- **Fonte** — chi ha consigliato questo roll (es. "Consigliato da Ascanio", "Trovato su light.gg")
+- **Fonte** — chi ha consigliato questo roll (es. "Consigliato da Smailen", "Trovato su light.gg")
 
 ### 4. Aspetta la revisione
 
@@ -65,7 +65,30 @@ Se hai familiarita' con Git e vuoi contribuire direttamente con codice o modific
 ```bash
 git clone https://github.com/Smailen5/godroll-d2.git
 cd godroll-d2
+pnpm install
 ```
+
+### Formato del file
+
+Il file `godroll-list-dim.txt` usa il formato DIM wishlist con commenti estesi:
+
+```
+//* Nome Arma
+//? Roll: Perk1, Perk2, Perk3, Perk4, Perk5
+dimwishlist:item=<ID>&perks=<id1>,<id2>,<id3>,<id4>,<id5>#notes:<descrizione>
+```
+
+**Elementi DIM standard:**
+- `title:<titolo>` — titolo della wishlist
+- `description:<descrizione>` — descrizione della wishlist
+- `//notes:<testo>` — block note per tutti i roll successivi
+- `#notes:<testo>` — nota inline per il singolo roll
+- `//` — commento ignorato da DIM
+
+**Estensioni del progetto:**
+- `//* Nome Arma` — separatore arma (asterisco per distinguerlo dai commenti `//`)
+- `//? Roll:` — nomi leggibili dei perk (generato da `add-roll-comments`)
+- I file `perks-reference.json` e `weapons-reference.json` mappano ID numerici ↔ nomi italiani
 
 ### Branch convention
 
@@ -95,25 +118,39 @@ docs: aggiorna README con nuovi badge
 4. Il titolo deve seguire i Conventional Commits
 5. Nella descrizione, collega la issue risolta con `Closes #numero`
 
-### Validazione locale
+### Script disponibili
 
-Prima di pushare una PR, verifica che il file wishlist sia corretto:
+| Comando | Cosa fa |
+|---------|---------|
+| `pnpm validate` | Valida sintassi, ID sconosciuti e coerenza `//? Roll:` |
+| `pnpm validate --strict` | Come sopra ma i warning bloccano |
+| `pnpm add-roll-comments` | Genera `//? Roll:` dai `dimwishlist:` esistenti |
+| `pnpm add-roll-from-comments` | Genera `dimwishlist:` dai `//? Roll:` (cerca armi/perk nuovi nel manifest) |
+| `pnpm fetch-perks` | Scarica il manifest e verifica i perk nella reference |
+| `pnpm fetch-weapons` | Scarica il manifest e verifica le armi nella reference |
 
-```bash
-pnpm validate
-```
+### Flusso per aggiungere un roll
 
-Questo comando controlla:
-- Sintassi corretta delle righe `dimwishlist:`
-- Presenza del commento separatore `// Nome Arma` prima di ogni roll
-- ID item e perk numerici validi
-- Assenza di roll duplicati
+**Da DIM (con ID) — il piu' comune:**
 
-Il controllo viene eseguito automaticamente anche dal CI su ogni PR.
+1. Copia la stringa del roll da DIM
+2. Incollala nel file sotto il commento `//*` dell'arma
+3. Esegui `pnpm add-roll-comments` per generare il commento `//? Roll:`
+4. Esegui `pnpm validate` per verificare
+
+**Da nomi (senza ID) — per nuove armi:**
+
+1. Scrivi `//* Nome Arma` e `//? Roll: Perk1, Perk2, ...`
+2. Esegui `pnpm add-roll-from-comments` per generare la riga `dimwishlist:`
+3. Esegui `pnpm validate` per verificare
+
+Se l'arma o i perk non sono nella reference, `add-roll-from-comments` li cerca automaticamente nel manifest Bungie (richiede `pnpm fetch-weapons` o `pnpm fetch-perks` eseguito almeno una volta).
 
 ### Cosa puoi modificare
 
 - `godroll-list-dim.txt` — aggiungere, modificare o rimuovere roll
+- `perks-reference.json`, `weapons-reference.json` — reference automatici (modifica solo se necessario)
+- `scripts/` — script di gestione
 - `.github/` — template issue, workflow, configurazioni
 - `README.md`, `CONTRIBUTING.md` — documentazione
 

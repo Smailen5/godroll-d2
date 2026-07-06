@@ -16,26 +16,35 @@ Ogni entry include note in italiano che spiegano l'utilizzo del roll.
 
 ## Formato del file
 
-Il file `godroll-list-dim.txt` usa la sintassi DIM wishlist:
+Il file `godroll-list-dim.txt` usa la sintassi DIM wishlist estesa con commenti leggibili:
 
 ```
-// Nome Arma
-//notes:<fonte> (<attivita>): <descrizione>
-dimwishlist:item=<ID>&perks=<perk1>,<perk2>,...
-dimwishlist:item=<ID>&perks=<perk1>,<perk2>,... (altre varianti)
+//* Nome Arma
+//? Roll: Perk1, Perk2, Perk3, Perk4, Perk5
+dimwishlist:item=<ID>&perks=<id1>,<id2>,<id3>,<id4>,<id5>#notes:<descrizione>
 ```
 
-- `// Nome Arma` — commento separatore tra le armi
-- `//notes:...` — block note che si applica a tutti i roll successivi fino al prossimo commento
-- Attivita' supportate: `PVP`, `PVE`, `Gambit`, `Incursioni`, `Boss`, `Misto`
+### Elementi DIM standard
+
+- `title:<titolo>` — titolo della wishlist (visibile in DIM)
+- `description:<descrizione>` — descrizione della wishlist
+- `//notes:<testo>` — block note: si applica a tutti i roll successivi fino al prossimo commento arma
+- `#notes:<testo>` — nota inline per il singolo roll
+- `//` — commento ignorato da DIM
+
+### Estensioni del progetto
+
+- `//* Nome Arma` — commento separatore tra le armi (l'asterisco lo distingue dai commenti standard)
+- `//? Roll: Perk1, ...` — nomi leggibili dei perk nel roll sottostante (generato da `add-roll-comments`)
+- **Non mischiare** `//? Roll:` e `dimwishlist:` a mano: lascia che siano gli script a generarli
 
 Esempio:
 ```
-// Fame Ruggente
-//notes:Ascanio (PVE): Roll per attivita' PvE
-dimwishlist:item=214545213&perks=3661387068,106909392,776531651,2048641572,859855990
-//notes:Ascanio (PVE): Roll perfetto per attivita' PvE
-dimwishlist:item=214545213&perks=839105230,3142289711,776531651,2048641572,859855990
+//* Fame Ruggente
+//? Roll: Compensatore contenuto, Caricatore tattico, Stretta repulsiva, Proiettili destabilizzanti, Spara e corri
+dimwishlist:item=214545213&perks=3661387068,106909392,776531651,2048641572,859855990#notes:Roll consigliati da Smailen
+//? Roll: Direzione controllata, Proiettili rifiniti, Stretta repulsiva, Proiettili destabilizzanti, Spara e corri
+dimwishlist:item=214545213&perks=839105230,3142289711,776531651,2048641572,859855990#notes:Roll perfetti consigliato da Smailen
 ```
 
 ## Come usare la lista su DIM
@@ -51,11 +60,55 @@ dimwishlist:item=214545213&perks=839105230,3142289711,776531651,2048641572,85985
 
 I roll salvati appariranno con un'icona a forma di pollice in su sugli oggetti corrispondenti nel tuo inventario.
 
+## Script
+
+Il repository include alcuni script per gestire i roll:
+
+### `npm run validate`
+
+Valida la sintassi e la coerenza del file wishlist:
+- Controlla il formato delle righe `dimwishlist:`
+- Verifica che ogni ID perk sia presente in `perks-reference.json`
+- Verifica che i nomi nei commenti `//? Roll:` corrispondano agli ID nei roll
+- Segnala roll duplicati
+
+```bash
+npm run validate          # warning non bloccanti
+npm run validate --strict # warning → error
+```
+
+### `npm run add-roll-comments`
+
+Aggiunge i commenti `//? Roll:` sopra ogni riga `dimwishlist:` che ne è priva, traducendo gli ID numerici in nomi leggibili:
+
+```bash
+npm run add-roll-comments
+```
+
+Idempotente: esecuzioni multiple non creano duplicati.
+
+### `npm run add-roll-from-comments`
+
+Direzione inversa: dato un commento `//? Roll:` senza `dimwishlist:` sottostante, genera la riga con gli ID corretti. Per armi e perk non ancora nella reference, cerca automaticamente nel manifest di Bungie.
+
+```bash
+npm run add-roll-from-comments
+```
+
+Idempotente.
+
+### `npm run fetch-perks` / `npm run fetch-weapons`
+
+Scarica il manifest di Destiny 2 (italiano) e verifica che i perk e le armi nei file di reference corrispondano ai nomi ufficiali. La cache dura 24 ore.
+
+```bash
+npm run fetch-perks
+npm run fetch-weapons
+```
+
 ## Come contribuire
 
-Se vuoi aggiungere un nuovo roll, modificare uno esistente o segnalare un errore, consulta la [guida alla contribuzione](CONTRIBUTING.md).
-
-Tutti i contributi sono benvenuti, sia da membri del clan che da sviluppatori.
+Consulta la [guida alla contribuzione](CONTRIBUTING.md).
 
 ## Licenza
 

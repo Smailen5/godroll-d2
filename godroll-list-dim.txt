@@ -1,8 +1,8 @@
 //* Fame Ruggente
 //? Roll: Compensatore contenuto, Caricatore tattico, Stretta repulsiva, Proiettili destabilizzanti, Spara e corri
-dimwishlist:item=214545213&perks=3661387068,106909392,776531651,2048641572,859855990#notes:Roll consigliati da Ascanio
+dimwishlist:item=214545213&perks=3661387068,106909392,776531651,2048641572,859855990#notes:Roll consigliati da Smailen
 //? Roll: Direzione controllata, Proiettili rifiniti, Stretta repulsiva, Proiettili destabilizzanti, Spara e corri
-dimwishlist:item=214545213&perks=839105230,3142289711,776531651,2048641572,859855990#notes:Roll perfetti consigliato da Ascanio
+dimwishlist:item=214545213&perks=839105230,3142289711,776531651,2048641572,859855990#notes:Roll perfetti consigliato da Smailen
 //* Fornace Esplosiva
 //? Roll: Direzione controllata, Proiettili rifiniti, Tremori cinetici, Lucciola, Forgia consanguinea
 dimwishlist:item=52683113&perks=839105230,3142289711,3891536761,3824105627,2327629476#notes:Roll consigliato da light.gg
