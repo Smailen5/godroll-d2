@@ -28,15 +28,15 @@
     "type": "magazine"
   },
   "3891536761": {
-    "name": "Forgia consanguinea",
-    "type": "trait"
-  },
-  "3824105627": {
     "name": "Tremori cinetici",
     "type": "trait"
   },
-  "2327629476": {
+  "3824105627": {
     "name": "Lucciola",
+    "type": "trait"
+  },
+  "2327629476": {
+    "name": "Forgia consanguinea",
     "type": "origin"
   },
   "3250034553": {
