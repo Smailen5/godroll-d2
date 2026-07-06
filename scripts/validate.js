@@ -2,19 +2,33 @@ const fs = require('fs');
 const path = require('path');
 
 const WISHLIST_FILE = path.join(__dirname, '..', 'godroll-list-dim.txt');
+const PERKS_REFERENCE_FILE = path.join(__dirname, '..', 'perks-reference.json');
 const DIMWISHLIST_REGEX = /^dimwishlist:item=(-?\d+)&perks=(\d+(?:,\d+)*)$/;
 const BLOCK_NOTE_REGEX = /^\/\/notes:.+$/;
 const WEAPON_COMMENT_REGEX = /^\/\/ .+$/;
 
+function loadPerksReference() {
+  if (!fs.existsSync(PERKS_REFERENCE_FILE)) {
+    console.log('WARNING: perks-reference.json non trovato, controllo perk sconosciuti saltato.');
+    return null;
+  }
+  return JSON.parse(fs.readFileSync(PERKS_REFERENCE_FILE, 'utf-8'));
+}
+
 function validate() {
+  const strict = process.argv.includes('--strict');
+
   if (!fs.existsSync(WISHLIST_FILE)) {
     console.error(`Errore: file non trovato: ${WISHLIST_FILE}`);
     process.exit(1);
   }
 
+  const perksReference = loadPerksReference();
   const content = fs.readFileSync(WISHLIST_FILE, 'utf-8').replace(/\r\n/g, '\n');
   const lines = content.split('\n').filter(line => line.trim() !== '');
   const errors = [];
+  const warnings = [];
+  const unknownPerks = new Set();
   const rolls = new Set();
   let currentWeapon = null;
 
@@ -35,7 +49,7 @@ function validate() {
       return;
     }
 
-    const [rollPart, notesPart] = line.split('#notes:');
+    const [rollPart] = line.split('#notes:');
     const match = rollPart.match(DIMWISHLIST_REGEX);
 
     if (!match) {
@@ -53,6 +67,11 @@ function validate() {
     perks.forEach((perk, i) => {
       if (!/^\d+$/.test(perk)) {
         errors.push(`Riga ${lineNum}: perk ${i + 1} non valido: "${perk}"`);
+      } else if (perksReference !== null && !perksReference[perk]) {
+        warnings.push(
+          `Riga ${lineNum}: perk ${i + 1} (${perk}) non presente in perks-reference.json`
+        );
+        unknownPerks.add(perk);
       }
     });
 
@@ -67,13 +86,28 @@ function validate() {
     }
   });
 
+  if (warnings.length > 0) {
+    console.log('WARNING:');
+    warnings.forEach(w => console.log(`  - ${w}`));
+    console.log(
+      `  ${unknownPerks.size} perk ID sconosciuti: ${[...unknownPerks].join(', ')}`
+    );
+    if (strict) {
+      console.log('\nModalità strict: WARNING trasformati in ERROR.');
+      process.exit(1);
+    }
+  }
+
   if (errors.length > 0) {
     console.error('Validazione fallita:');
     errors.forEach(err => console.error(`  - ${err}`));
     process.exit(1);
   }
 
-  console.log(`Validazione completata: ${rolls.size} roll verificati`);
+  const status = warnings.length > 0
+    ? `${rolls.size} roll verificati, ${warnings.length} warning`
+    : `${rolls.size} roll verificati`;
+  console.log(`Validazione completata: ${status}`);
   process.exit(0);
 }
 
