@@ -2,75 +2,79 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
-const { DatabaseSync } = require('node:sqlite');
 
 const REFERENCE_FILE = path.join(__dirname, '..', 'perks-reference.json');
 const CACHE_DIR = path.join(__dirname, '..', '.cache');
-const MANIFEST_FILE = path.join(CACHE_DIR, 'manifest.sqlite3');
+const PERKS_CACHE_FILE = path.join(CACHE_DIR, 'perks-it.json');
 
-const MANIFEST_URLS = [
-  'https://destinysets.com/data/manifest_it.sqlite3',
-  'https://destinysets.com/data/manifest_en.sqlite3',
-];
+const MANIFEST_INDEX_URL = 'https://www.bungie.net/Platform/Destiny2/Manifest/';
+const BUNGIE_BASE = 'https://www.bungie.net';
+const LOCALE = 'it';
 
-async function downloadManifest(url) {
-  if (!fs.existsSync(CACHE_DIR)) {
-    fs.mkdirSync(CACHE_DIR, { recursive: true });
-  }
-
-  console.log(`Scaricamento manifest da ${url}...`);
+async function fetchJson(url) {
   const response = await fetch(url);
   if (!response.ok) {
-    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    throw new Error(`HTTP ${response.status}`);
+  }
+  return response.json();
+}
+
+async function downloadFile(url, dest, label) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
   }
 
-  const total = parseInt(response.headers.get('content-length'), 10);
   let received = 0;
 
-  const dest = fs.createWriteStream(MANIFEST_FILE);
+  const writeStream = fs.createWriteStream(dest);
   const reader = response.body.getReader();
 
   while (true) {
     const { done, value } = await reader.read();
     if (done) break;
     received += value.length;
-    dest.write(Buffer.from(value));
-    if (total) {
-      process.stdout.write(`\r  ${((received / total) * 100).toFixed(1)}%`);
+    writeStream.write(Buffer.from(value));
+    process.stdout.write(`\r  ${label}: ${(received / 1024 / 1024).toFixed(1)} MB`);
+  }
+  writeStream.end();
+  console.log('');
+}
+
+async function getPerksData() {
+  if (!fs.existsSync(CACHE_DIR)) {
+    fs.mkdirSync(CACHE_DIR, { recursive: true });
+  }
+
+  if (fs.existsSync(PERKS_CACHE_FILE)) {
+    const stat = fs.statSync(PERKS_CACHE_FILE);
+    const ageHours = (Date.now() - stat.mtimeMs) / (1000 * 60 * 60);
+    if (ageHours < 24) {
+      console.log(`Usando cache (${ageHours.toFixed(1)} ore fa).`);
+      return JSON.parse(fs.readFileSync(PERKS_CACHE_FILE, 'utf-8'));
     }
-  }
-  dest.end();
-  console.log('\nManifest scaricato.');
-}
-
-function getManifest() {
-  if (!fs.existsSync(MANIFEST_FILE)) {
-    return null;
-  }
-  return new DatabaseSync(MANIFEST_FILE, { readOnly: true });
-}
-
-function lookupPerk(db, id) {
-  const numId = Number(id);
-  if (!Number.isInteger(numId)) {
-    return null;
+    console.log('Cache scaduta (>24 ore). Riscarico...');
   }
 
-  const stmt = db.prepare(
-    'SELECT json FROM DestinySandboxPerkDefinition WHERE id = ?'
-  );
-  const row = stmt.get(numId);
-  if (!row) return null;
+  console.log('Recupero indice manifest...');
+  const manifestIndex = await fetchJson(MANIFEST_INDEX_URL);
 
-  try {
-    const def = JSON.parse(row.json);
-    return {
-      name: def.displayProperties?.name || null,
-      description: def.displayProperties?.description || null,
-    };
-  } catch {
-    return null;
+  const defs = manifestIndex?.Response?.jsonWorldComponentContentPaths?.[LOCALE];
+  if (!defs) {
+    throw new Error(`Locale "${LOCALE}" non trovato nel manifest.`);
   }
+
+  const litePath = defs.DestinyInventoryItemLiteDefinition;
+  if (!litePath) {
+    throw new Error('DestinyInventoryItemLiteDefinition non trovata nel manifest.');
+  }
+
+  const liteUrl = BUNGIE_BASE + litePath;
+  console.log(`Scaricamento DestinyInventoryItemLiteDefinition (${LOCALE})...`);
+  await downloadFile(liteUrl, PERKS_CACHE_FILE, 'Scaricamento');
+
+  console.log('Lettura file...');
+  return JSON.parse(fs.readFileSync(PERKS_CACHE_FILE, 'utf-8'));
 }
 
 function readReference() {
@@ -80,14 +84,14 @@ function readReference() {
   return JSON.parse(fs.readFileSync(REFERENCE_FILE, 'utf-8'));
 }
 
-function writeReference(ref) {
-  const sorted = {};
-  Object.keys(ref)
-    .sort()
-    .forEach((key) => {
-      sorted[key] = ref[key];
-    });
-  fs.writeFileSync(REFERENCE_FILE, JSON.stringify(sorted, null, 2) + '\n');
+function resolveIds(id, ref) {
+  const ids = [id];
+  const entry = ref[id];
+  if (entry) {
+    if (entry.enhancedId) ids.push(entry.enhancedId);
+    if (entry.baseId) ids.push(entry.baseId);
+  }
+  return ids;
 }
 
 async function main() {
@@ -95,40 +99,20 @@ async function main() {
   const reference = readReference();
   const referenceIds = Object.keys(reference);
 
-  if (referenceIds.length === 0) {
-    console.log('Nessun ID in perks-reference.json.');
-  }
-
   const allIds = [
     ...new Set([...referenceIds, ...args.filter((a) => /^\d+$/.test(a))]),
   ];
 
   if (allIds.length === 0) {
     console.log('Uso: node scripts/fetch-perks.js [id1 id2 ...]');
+    console.log(
+      '  Verifica gli ID in perks-reference.json e opzionalmente cerca nuovi ID.'
+    );
     process.exit(0);
   }
 
-  let db = getManifest();
-  if (!db) {
-    for (const url of MANIFEST_URLS) {
-      try {
-        await downloadManifest(url);
-        db = getManifest();
-        break;
-      } catch (err) {
-        console.log(`  Fallito: ${err.message}`);
-      }
-    }
-    if (!db) {
-      console.error('Impossibile scaricare il manifest da nessun URL.');
-      console.log(
-        'Prova a impostare MANIFEST_URL con un URL alternativo.'
-      );
-      process.exit(1);
-    }
-  }
-
-  console.log('\nRisultati ricerca:\n');
+  console.log(`Verifica di ${allIds.length} ID...\n`);
+  const data = await getPerksData();
 
   let ok = 0;
   let notFound = 0;
@@ -136,31 +120,33 @@ async function main() {
 
   for (const id of allIds) {
     const entry = reference[id];
-    const manifest = lookupPerk(db, id);
+    const def = data[id];
     const inRef = entry ? ' (in reference)' : ' (nuovo)';
 
-    if (!manifest) {
-      console.log(`  ${id}${inRef}: NON TROVATO nel manifest`);
+    if (!def) {
+      console.log(`  ${id}${inRef}: NON TROVATO`);
       notFound++;
       continue;
     }
 
-    const engName = manifest.name || '(nome assente)';
+    const manifestName = def.displayProperties?.name || '(nome assente)';
+    const manifestDesc = def.displayProperties?.description || '';
     const refName = entry ? entry.name : null;
 
     if (refName) {
-      console.log(`  ${id}: reference="${refName}"  |  manifest="${engName}"`);
+      if (manifestName === refName) {
+        console.log(`  ${id}: OK - "${manifestName}"`);
+        ok++;
+      } else {
+        console.log(
+          `  ${id}: DISCREPANZA - reference="${refName}" | manifest="${manifestName}"`
+        );
+        mismatches++;
+      }
     } else {
-      console.log(`  ${id}${inRef}: manifest="${engName}"`);
-      ok++;
-      continue;
-    }
-
-    if (engName !== refName) {
-      console.log(`    -> DISCREPANZA: il nome italiano potrebbe essere corretto ma va verificato a mano`);
-      mismatches++;
-    } else {
-      ok++;
+      console.log(
+        `  ${id}${inRef}: "${manifestName}"${manifestDesc ? ' - ' + manifestDesc.slice(0, 80) : ''}`
+      );
     }
   }
 
@@ -168,16 +154,19 @@ async function main() {
     `\nOK: ${ok} | Non trovati: ${notFound} | Discrepanze: ${mismatches}`
   );
 
-  if (notFound > 0) {
+  if (mismatches > 0) {
     console.log(
-      'NOTA: alcuni ID non sono stati trovati nel manifest. Potrebbero non essere perk.'
+      'DISCREPANZE trovate: verifica i nomi in perks-reference.json e correggi.'
     );
   }
-
-  db.close();
+  if (notFound > 0) {
+    console.log(
+      'NOTA: alcuni ID non sono stati trovati. Potrebbero non essere item di Destiny 2.'
+    );
+  }
 }
 
 main().catch((err) => {
-  console.error(err.message);
+  console.error(`Errore: ${err.message}`);
   process.exit(1);
 });
