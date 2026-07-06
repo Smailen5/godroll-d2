@@ -1,5 +1,35 @@
 # Changelog
 
+## [0.4.0](https://github.com/Smailen5/godroll-d2/compare/v0.3.0...v0.4.0) (2026-07-06)
+
+
+### Nuove funzionalità
+
+* aggiunge script per generare commenti //? Roll: automaticamente ([#40](https://github.com/Smailen5/godroll-d2/issues/40)) ([5f3e215](https://github.com/Smailen5/godroll-d2/commit/5f3e215f89e8389937f6bd8de9c0078c2ae8dc96))
+* aggiunge weapons-reference, fetch-weapons e generazione roll da //? Roll: ([#42](https://github.com/Smailen5/godroll-d2/issues/42)) ([fffc6b1](https://github.com/Smailen5/godroll-d2/commit/fffc6b15c0e197dccb9535a14a56866dc0ab0592))
+* estende validate.js con controllo coerenza commenti //? Roll: ([#39](https://github.com/Smailen5/godroll-d2/issues/39)) ([7abc77b](https://github.com/Smailen5/godroll-d2/commit/7abc77bc39062222ee2a9c9c589dce5888272dc8))
+* estende validate.js con controllo perk sconosciuti ([#37](https://github.com/Smailen5/godroll-d2/issues/37)) ([ac10753](https://github.com/Smailen5/godroll-d2/commit/ac10753541af5b471a00beb6ce4ca31f371b49cf))
+
+
+### Correzione bug
+
+* cerca armi e perk sconosciuti nel manifest in add-roll-from-comments ([#43](https://github.com/Smailen5/godroll-d2/issues/43)) ([0b6a8fe](https://github.com/Smailen5/godroll-d2/commit/0b6a8fe7d0eb22eec8c3b9195cf5ccfddc7cd9a6))
+
+
+### Documentazione
+
+* aggiunge AGENTS.md con convenzioni e formato wishlist ([#26](https://github.com/Smailen5/godroll-d2/issues/26)) ([4a7ac9e](https://github.com/Smailen5/godroll-d2/commit/4a7ac9ebbe7b744d823211072ed8dfec7d534659))
+
+
+### Manutenzione
+
+* crea perks-reference.json e script fetch-perks ([#36](https://github.com/Smailen5/godroll-d2/issues/36)) ([3e99088](https://github.com/Smailen5/godroll-d2/commit/3e99088016dcf8806ca108b65696d1481f664c8c))
+
+
+### CI/CD
+
+* aggiunge validazione formato wishlist e script di controllo locale ([#29](https://github.com/Smailen5/godroll-d2/issues/29)) ([595a7dc](https://github.com/Smailen5/godroll-d2/commit/595a7dc97c92c87b7944ad4ad05cebf7193d3dbc))
+
 ## [0.3.0](https://github.com/Smailen5/godroll-d2/compare/v0.2.0...v0.3.0) (2026-07-03)
 
 
