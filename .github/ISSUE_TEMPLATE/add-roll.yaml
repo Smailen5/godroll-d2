@@ -70,4 +70,4 @@ body:
     attributes:
       label: Consigliato da (opzionale)
       description: "Chi ha suggerito questo roll? (es. nome del clanmate)"
-      placeholder: "Ascanio, Giuseppe, ecc."
+      placeholder: "Smailen, Giuseppe, ecc."
