@@ -6,6 +6,8 @@
   "scripts": {
     "validate": "node scripts/validate.js",
     "fetch-perks": "node scripts/fetch-perks.js",
-    "add-roll-comments": "node scripts/add-roll-comments.js"
+    "fetch-weapons": "node scripts/fetch-weapons.js",
+    "add-roll-comments": "node scripts/add-roll-comments.js",
+    "add-roll-from-comments": "node scripts/add-roll-from-comments.js"
   }
 }
