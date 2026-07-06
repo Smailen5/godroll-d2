@@ -134,7 +134,7 @@ async function main() {
     const refName = entry ? entry.name : null;
 
     if (refName) {
-      if (manifestName === refName) {
+      if (manifestName.toLowerCase() === refName.toLowerCase()) {
         console.log(`  ${id}: OK - "${manifestName}"`);
         ok++;
       } else {

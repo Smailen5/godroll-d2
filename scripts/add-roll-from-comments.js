@@ -6,16 +6,37 @@ const path = require('node:path');
 const WISHLIST_FILE = path.join(__dirname, '..', 'godroll-list-dim.txt');
 const PERKS_REFERENCE_FILE = path.join(__dirname, '..', 'perks-reference.json');
 const WEAPONS_REFERENCE_FILE = path.join(__dirname, '..', 'weapons-reference.json');
+const CACHE_DIR = path.join(__dirname, '..', '.cache');
 
 const WEAPON_COMMENT_REGEX = /^\/\/\* .+$/;
 const ROLL_COMMENT_REGEX = /^\/\/\? Roll:\s*.+$/;
 
+function loadManifestCache() {
+  for (const name of ['items-it.json', 'perks-it.json']) {
+    const file = path.join(CACHE_DIR, name);
+    if (fs.existsSync(file)) {
+      return JSON.parse(fs.readFileSync(file, 'utf-8'));
+    }
+  }
+  return null;
+}
+
+function buildManifestNameIndex(manifest) {
+  const index = new Map();
+  for (const [id, entry] of Object.entries(manifest)) {
+    const name = (entry.displayProperties?.name || '').toLowerCase();
+    if (name) {
+      const ids = index.get(name) || [];
+      ids.push(id);
+      index.set(name, ids);
+    }
+  }
+  return index;
+}
+
 function loadPerksReference() {
   const data = {};
-  if (!fs.existsSync(PERKS_REFERENCE_FILE)) {
-    console.log('WARNING: perks-reference.json non trovato.');
-    return data;
-  }
+  if (!fs.existsSync(PERKS_REFERENCE_FILE)) return data;
   const ref = JSON.parse(fs.readFileSync(PERKS_REFERENCE_FILE, 'utf-8'));
   for (const [id, entry] of Object.entries(ref)) {
     const name = entry.name.toLowerCase();
@@ -28,17 +49,63 @@ function loadPerksReference() {
   return data;
 }
 
+function savePerksReference(data, manifest) {
+  const existing = {};
+  if (fs.existsSync(PERKS_REFERENCE_FILE)) {
+    Object.assign(existing, JSON.parse(fs.readFileSync(PERKS_REFERENCE_FILE, 'utf-8')));
+  }
+  const ref = { ...existing };
+  for (const [nameLower, ids] of Object.entries(data)) {
+    for (const id of ids) {
+      if (ref[id]) continue;
+      const def = manifest ? manifest[id] : null;
+      const manifestName = def?.displayProperties?.name;
+      let finalName = manifestName || nameLower;
+      for (const other of Object.values(ref)) {
+        if (other.name.toLowerCase() === nameLower) {
+          finalName = other.name;
+          break;
+        }
+      }
+      ref[id] = { name: finalName };
+    }
+  }
+  fs.writeFileSync(PERKS_REFERENCE_FILE, JSON.stringify(ref, null, 2) + '\n');
+}
+
 function loadWeaponsReference() {
   const data = {};
-  if (!fs.existsSync(WEAPONS_REFERENCE_FILE)) {
-    console.log('WARNING: weapons-reference.json non trovato.');
-    return data;
-  }
+  if (!fs.existsSync(WEAPONS_REFERENCE_FILE)) return data;
   const ref = JSON.parse(fs.readFileSync(WEAPONS_REFERENCE_FILE, 'utf-8'));
   for (const [id, entry] of Object.entries(ref)) {
     data[entry.name.toLowerCase()] = id;
   }
   return data;
+}
+
+function saveWeaponsReference(data, manifest) {
+  const existing = {};
+  if (fs.existsSync(WEAPONS_REFERENCE_FILE)) {
+    Object.assign(existing, JSON.parse(fs.readFileSync(WEAPONS_REFERENCE_FILE, 'utf-8')));
+  }
+  const ref = {};
+  for (const [nameLower, id] of Object.entries(data)) {
+    if (existing[id]) {
+      ref[id] = existing[id];
+      if (manifest && manifest[id]) {
+        const correctName = manifest[id].displayProperties?.name;
+        if (correctName && existing[id].name !== correctName) {
+          ref[id] = { ...existing[id], name: correctName };
+        }
+      }
+    } else {
+      const def = manifest ? manifest[id] : null;
+      ref[id] = {
+        name: (def && def.displayProperties && def.displayProperties.name) || nameLower,
+      };
+    }
+  }
+  fs.writeFileSync(WEAPONS_REFERENCE_FILE, JSON.stringify(ref, null, 2) + '\n');
 }
 
 function getNextNonCommentIndex(lines, start) {
@@ -57,6 +124,12 @@ function main() {
 
   const perksByName = loadPerksReference();
   const weaponsByName = loadWeaponsReference();
+  const manifest = loadManifestCache();
+  const manifestIndex = manifest ? buildManifestNameIndex(manifest) : new Map();
+
+  let perksChanged = false;
+  let weaponsChanged = false;
+
   const content = fs.readFileSync(WISHLIST_FILE, 'utf-8');
   const lines = content.split('\n');
 
@@ -91,10 +164,22 @@ function main() {
         continue;
       }
 
-      const weaponId = weaponsByName[currentWeapon.toLowerCase()];
+      const weaponNameLower = currentWeapon.toLowerCase();
+      let weaponId = weaponsByName[weaponNameLower];
+
+      if (!weaponId && manifestIndex.size > 0) {
+        const ids = manifestIndex.get(weaponNameLower);
+        if (ids && ids.length > 0) {
+          weaponId = ids[0];
+          weaponsByName[weaponNameLower] = weaponId;
+          weaponsChanged = true;
+          console.log(`  Aggiunta arma "${currentWeapon}" (ID: ${weaponId}) a weapons-reference.json`);
+        }
+      }
+
       if (!weaponId) {
         console.log(
-          `WARNING: arma "${currentWeapon}" non trovata in weapons-reference.json. Salto.`
+          `WARNING: arma "${currentWeapon}" non trovata. Esegui "npm run fetch-weapons" per aggiornare la cache e riprova.`
         );
         result.push(line);
         continue;
@@ -107,21 +192,32 @@ function main() {
         .filter(Boolean);
 
       const perkIds = [];
-      const missingPerks = [];
+      let hasMissing = false;
 
       for (const name of perkNames) {
-        const ids = perksByName[name];
+        let ids = perksByName[name];
+
+        if (!ids && manifestIndex.size > 0) {
+          const manifestIds = manifestIndex.get(name);
+          if (manifestIds && manifestIds.length > 0) {
+            perksByName[name] = [...new Set([...manifestIds])];
+            perksChanged = true;
+            ids = perksByName[name];
+            console.log(`  Aggiunto perk "${name}" (ID: ${manifestIds[0]}) a perks-reference.json`);
+          }
+        }
+
         if (!ids) {
-          missingPerks.push(name);
+          console.log(
+            `WARNING: perk "${name}" non trovato. Esegui "npm run fetch-perks" per aggiornare la cache.`
+          );
+          hasMissing = true;
         } else {
           perkIds.push(ids[0]);
         }
       }
 
-      if (missingPerks.length > 0) {
-        console.log(
-          `WARNING: perk non trovati in perks-reference.json: ${missingPerks.join(', ')}. Salto.`
-        );
+      if (hasMissing) {
         result.push(line);
         continue;
       }
@@ -135,6 +231,9 @@ function main() {
 
     result.push(line);
   }
+
+  if (weaponsChanged) saveWeaponsReference(weaponsByName, manifest);
+  if (perksChanged) savePerksReference(perksByName, manifest);
 
   if (added === 0) {
     console.log('Nessun roll da generare.');
