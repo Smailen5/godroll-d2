@@ -9,10 +9,34 @@ const WEAPON_COMMENT_REGEX = /^\/\/ .+$/;
 
 function loadPerksReference() {
   if (!fs.existsSync(PERKS_REFERENCE_FILE)) {
-    console.log('WARNING: perks-reference.json non trovato, controllo perk sconosciuti saltato.');
+    console.log('WARNING: perks-reference.json non trovato, controlli perk saltati.');
     return null;
   }
   return JSON.parse(fs.readFileSync(PERKS_REFERENCE_FILE, 'utf-8'));
+}
+
+function buildNameIndex(reference) {
+  const index = new Map();
+  for (const [id, entry] of Object.entries(reference)) {
+    const name = entry.name.toLowerCase();
+    const ids = index.get(name) || [];
+    ids.push(id);
+    if (entry.enhancedId) ids.push(entry.enhancedId);
+    if (entry.baseId) ids.push(entry.baseId);
+    index.set(name, [...new Set(ids)]);
+  }
+  return index;
+}
+
+function findPerkNamesInNotes(notes, nameIndex) {
+  const found = new Map();
+  const lowerNotes = notes.toLowerCase();
+  for (const [name, ids] of nameIndex) {
+    if (lowerNotes.includes(name)) {
+      found.set(name, ids);
+    }
+  }
+  return found;
 }
 
 function validate() {
@@ -24,6 +48,7 @@ function validate() {
   }
 
   const perksReference = loadPerksReference();
+  const nameIndex = perksReference ? buildNameIndex(perksReference) : null;
   const content = fs.readFileSync(WISHLIST_FILE, 'utf-8').replace(/\r\n/g, '\n');
   const lines = content.split('\n').filter(line => line.trim() !== '');
   const errors = [];
@@ -49,7 +74,7 @@ function validate() {
       return;
     }
 
-    const [rollPart] = line.split('#notes:');
+    const [rollPart, notesPart = ''] = line.split('#notes:');
     const match = rollPart.match(DIMWISHLIST_REGEX);
 
     if (!match) {
@@ -75,6 +100,19 @@ function validate() {
       }
     });
 
+    if (nameIndex && notesPart) {
+      const mentionedPerks = findPerkNamesInNotes(notesPart, nameIndex);
+      const perkSet = new Set(perks);
+      for (const [name, ids] of mentionedPerks) {
+        const found = ids.some((id) => perkSet.has(id));
+        if (!found) {
+          warnings.push(
+            `Riga ${lineNum}: la nota menziona "${name}" (ID: ${ids.join(', ')}) ma il perk non è nel roll`
+          );
+        }
+      }
+    }
+
     const rollKey = `${itemId}:${perksStr}`;
     if (rolls.has(rollKey)) {
       errors.push(`Riga ${lineNum}: roll duplicato (item=${itemId})`);
@@ -89,9 +127,11 @@ function validate() {
   if (warnings.length > 0) {
     console.log('WARNING:');
     warnings.forEach(w => console.log(`  - ${w}`));
-    console.log(
-      `  ${unknownPerks.size} perk ID sconosciuti: ${[...unknownPerks].join(', ')}`
-    );
+    if (unknownPerks.size > 0) {
+      console.log(
+        `  ${unknownPerks.size} perk ID sconosciuti: ${[...unknownPerks].join(', ')}`
+      );
+    }
     if (strict) {
       console.log('\nModalità strict: WARNING trasformati in ERROR.');
       process.exit(1);
