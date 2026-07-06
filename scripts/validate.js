@@ -5,7 +5,7 @@ const WISHLIST_FILE = path.join(__dirname, '..', 'godroll-list-dim.txt');
 const PERKS_REFERENCE_FILE = path.join(__dirname, '..', 'perks-reference.json');
 const DIMWISHLIST_REGEX = /^dimwishlist:item=(-?\d+)&perks=(\d+(?:,\d+)*)$/;
 const BLOCK_NOTE_REGEX = /^\/\/notes:.+$/;
-const WEAPON_COMMENT_REGEX = /^\/\/ .+$/;
+const WEAPON_COMMENT_REGEX = /^\/\/\* .+$/;
 const ROLL_COMMENT_REGEX = /^\/\/\? Roll:\s*.+$/;
 
 function loadPerksReference() {
@@ -57,7 +57,7 @@ function validate() {
       } else if (!WEAPON_COMMENT_REGEX.test(line) && !BLOCK_NOTE_REGEX.test(line)) {
         errors.push(`Riga ${lineNum}: commento non valido: "${line}"`);
       } else if (WEAPON_COMMENT_REGEX.test(line)) {
-        currentWeapon = line.replace(/^\/\/ /, '');
+        currentWeapon = line.replace(/^\/\/\* /, '');
       }
       return;
     }
