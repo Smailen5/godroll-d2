@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.5.0](https://github.com/Smailen5/godroll-d2/compare/v0.4.0...v0.5.0) (2026-07-07)
+
+
+### Nuove funzionalità
+
+* supporta wildcard '-' per colonne non rilevanti ([#49](https://github.com/Smailen5/godroll-d2/issues/49)) ([bc63bd1](https://github.com/Smailen5/godroll-d2/commit/bc63bd14ebf0dcf90721e1e4b8eec6019476971f))
+
+
+### Documentazione
+
+* aggiorna README e CONTRIBUTING con script e formato //* e //? Roll: ([#45](https://github.com/Smailen5/godroll-d2/issues/45)) ([05d3a71](https://github.com/Smailen5/godroll-d2/commit/05d3a71a664e00c56720dcb2c8119c7be9dc80f6))
+
+
+### Refactoring
+
+* converte commenti //? Roll: in minuscolo ([#47](https://github.com/Smailen5/godroll-d2/issues/47)) ([7f0804a](https://github.com/Smailen5/godroll-d2/commit/7f0804aee4e83c676f042b9cdeac366c57cfd0e3))
+
 ## [0.4.0](https://github.com/Smailen5/godroll-d2/compare/v0.3.0...v0.4.0) (2026-07-06)
 
 
