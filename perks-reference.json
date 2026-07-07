@@ -67,6 +67,9 @@
     "enhancedId": "4236235115",
     "type": "origin"
   },
+  "1820235745": {
+    "name": "Sussistenza"
+  },
   "1831023215": {
     "name": "Lupo furtivo",
     "type": "origin"
@@ -132,6 +135,9 @@
     "name": "Rigatura martellata",
     "type": "barrel"
   },
+  "3609952942": {
+    "name": "Sguardo ferreo"
+  },
   "3619207468": {
     "name": "Alla Larga"
   },
@@ -156,9 +162,15 @@
     "name": "Rigatura a spirale",
     "type": "barrel"
   },
+  "4152709778": {
+    "name": "Sguardo ferreo"
+  },
   "4236235115": {
     "name": "Ruggito di battaglia",
     "enhancedId": "4236235115",
     "type": "origin"
+  },
+  "4245865861": {
+    "name": "Sussistenza"
   }
 }
