@@ -1,16 +1,16 @@
 //* Fame Ruggente
-//? Roll: Compensatore contenuto, Caricatore tattico, Stretta repulsiva, Proiettili destabilizzanti, Spara e corri
+//? Roll: compensatore contenuto, caricatore tattico, stretta repulsiva, proiettili destabilizzanti, spara e corri
 dimwishlist:item=214545213&perks=3661387068,106909392,776531651,2048641572,859855990#notes:Roll consigliati da Smailen
-//? Roll: Direzione controllata, Proiettili rifiniti, Stretta repulsiva, Proiettili destabilizzanti, Spara e corri
+//? Roll: direzione controllata, proiettili rifiniti, stretta repulsiva, proiettili destabilizzanti, spara e corri
 dimwishlist:item=214545213&perks=839105230,3142289711,776531651,2048641572,859855990#notes:Roll perfetti consigliato da Smailen
 //* Fornace Esplosiva
-//? Roll: Direzione controllata, Proiettili rifiniti, Tremori cinetici, Lucciola, Forgia consanguinea
+//? Roll: direzione controllata, proiettili rifiniti, tremori cinetici, lucciola, forgia consanguinea
 dimwishlist:item=52683113&perks=839105230,3142289711,3891536761,3824105627,2327629476#notes:Roll consigliato da light.gg
 //* La Cuspide Logora
-//? Roll: Rigatura martellata, Proiettili rifiniti, Momento zen, Cercateste, Lupo furtivo
+//? Roll: rigatura martellata, proiettili rifiniti, momento zen, cercateste, lupo furtivo
 dimwishlist:item=2204165992&perks=3250034553,3142289711,2387244414,460017080,1831023215#notes:PVP Consigliato
 //* Vento Autunnale
-//? Roll: Rigatura a spirale, Proiettili perforanti, Telemetro, Cercateste, Ruggito di battaglia
+//? Roll: rigatura a spirale, proiettili perforanti, telemetro, cercateste, ruggito di battaglia
 dimwishlist:item=2150012407&perks=4090651448,1968497646,2846385770,460017080,1673863459#notes:Smailen (PVP): Roll consigliato per il PVP secondo light.gg, telemetro
-//? Roll: Rigatura a spirale, Proiettili perforanti, Momento zen, Cercateste, Ruggito di battaglia
+//? Roll: rigatura a spirale, proiettili perforanti, momento zen, cercateste, ruggito di battaglia
 dimwishlist:item=2150012407&perks=4090651448,1968497646,2387244414,460017080,1673863459#notes:Smailen (PVP): Roll consigliato per il PVP, momento zen invece di telemetro
