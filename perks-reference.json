@@ -7,9 +7,15 @@
     "name": "Caricatore tattico",
     "type": "magazine"
   },
+  "288411554": {
+    "name": "Furia"
+  },
   "460017080": {
     "name": "Cercateste",
     "type": "trait"
+  },
+  "588594999": {
+    "name": "Bersaglio mobile"
   },
   "776531651": {
     "name": "Stretta repulsiva",
@@ -62,6 +68,9 @@
     "name": "Determinazione dell'Avanguardia",
     "enhancedId": "3846229553"
   },
+  "1645158859": {
+    "name": "Sotto pressione"
+  },
   "1673863459": {
     "name": "Ruggito di battaglia",
     "enhancedId": "4236235115",
@@ -109,6 +118,9 @@
     "enhanced": true,
     "baseId": "1585115329"
   },
+  "2717805783": {
+    "name": "Bersaglio mobile"
+  },
   "2734369894": {
     "name": "Alla Larga"
   },
@@ -135,6 +147,12 @@
     "name": "Rigatura martellata",
     "type": "barrel"
   },
+  "3425386926": {
+    "name": "Furia"
+  },
+  "3551326236": {
+    "name": "Furia"
+  },
   "3609952942": {
     "name": "Sguardo ferreo"
   },
@@ -144,6 +162,9 @@
   "3661387068": {
     "name": "Compensatore contenuto",
     "type": "barrel"
+  },
+  "3755250867": {
+    "name": "Sotto pressione"
   },
   "3824105627": {
     "name": "Lucciola",
