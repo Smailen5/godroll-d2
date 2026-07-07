@@ -83,14 +83,14 @@ function validate() {
     }
 
     perks.forEach((perk, i) => {
-      if (!/^\d+$/.test(perk)) {
-        errors.push(`Riga ${lineNum}: perk ${i + 1} non valido: "${perk}"`);
-      } else if (perksReference !== null && !perksReference[perk]) {
-        warnings.push(
-          `Riga ${lineNum}: perk ${i + 1} (${perk}) non presente in perks-reference.json`
-        );
-        unknownPerks.add(perk);
-      }
+        if (!/^\d+$/.test(perk)) {
+          errors.push(`Riga ${lineNum}: perk ${i + 1} non valido: "${perk}"`);
+        } else if (perk !== '0' && perksReference !== null && !perksReference[perk]) {
+          warnings.push(
+            `Riga ${lineNum}: perk ${i + 1} (${perk}) non presente in perks-reference.json`
+          );
+          unknownPerks.add(perk);
+        }
     });
 
     if (currentRollComment && nameIndex) {
@@ -101,6 +101,9 @@ function validate() {
       const perkSet = new Set(perks);
 
       for (const name of expectedNames) {
+        if (name === '-') {
+          continue;
+        }
         const ids = nameIndex.get(name);
         if (!ids) {
           warnings.push(
