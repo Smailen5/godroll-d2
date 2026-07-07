@@ -16,45 +16,55 @@ Ogni entry include note in italiano che spiegano l'utilizzo del roll.
 
 ## Formato del file
 
-Il file `godroll-list-dim.txt` usa la sintassi DIM wishlist estesa con commenti leggibili:
+Il repository usa un sistema a due file:
 
+1. **File sorgente Markdown** (`godroll/<user>/<file>.md`) — dove scrivi i roll con nomi perk leggibili
+2. **File DIM generato** (`godroll/<user>/<file>.txt`) — output pulito pronto per DIM
+
+### Formato sorgente Markdown
+
+```markdown
+# title: Godroll — Lista Desideri D2
+## description: Wishlist personale e del clan
+
+### Nome Arma
+- fonte: Smailen
+- attivita: Misto
+- notes: Roll consigliati per il PVE
+
+#### Roll
+- perk1, perk2, perk3, perk4, perk5. #notes:Nota inline
+#notes:Block note personalizzato
+- qualsiasi, qualsiasi, perk3, perk4.
 ```
-//* Nome Arma
-//? Roll: Perk1, Perk2, Perk3, Perk4, Perk5
-dimwishlist:item=<ID>&perks=<id1>,<id2>,<id3>,<id4>,<id5>#notes:<descrizione>
-```
 
-### Elementi DIM standard
+**Elementi:**
+- `# title:` / `## description:` — metadati DIM (prime righe output)
+- `### Nome Arma` — separatore arma (usa `(-69420)` per wildcard DIM)
+- `- fonte:` / `- attivita:` / `- notes:` — metadati arma → `//notes:fonte (attivita): notes`
+- `#### Roll` — sezione roll (ignorato nell'output)
+- `- perk1, perk2, ...` — roll con nomi perk (max 5 colonne, `qualsiasi` o `-` → slot ignorato)
+- `#notes:testo` inline — nota solo per quel roll
+- `#notes:testo` standalone — cambia block note corrente
 
-- `title:<titolo>` — titolo della wishlist (visibile in DIM)
-- `description:<descrizione>` — descrizione della wishlist
-- `//notes:<testo>` — block note: si applica a tutti i roll successivi fino al prossimo commento arma
-- `#notes:<testo>` — nota inline per il singolo roll
-- `//` — commento ignorato da DIM
+### Formato output DIM
 
-### Estensioni del progetto
+Il file `.txt` generato contiene solo:
+- `title:` / `description:` — metadati DIM
+- `//notes:` — block note
+- `dimwishlist:item=X&perks=ID1,ID2,...` — roll
+- `#notes:...` — nota inline (opzionale)
 
-- `//* Nome Arma` — commento separatore tra le armi (l'asterisco lo distingue dai commenti standard)
-- `//? Roll: Perk1, ...` — nomi leggibili dei perk nel roll sottostante (generato da `add-roll-comments`)
-- **Non mischiare** `//? Roll:` e `dimwishlist:` a mano: lascia che siano gli script a generarli
-
-Esempio:
-```
-//* Fame Ruggente
-//? Roll: Compensatore contenuto, Caricatore tattico, Stretta repulsiva, Proiettili destabilizzanti, Spara e corri
-dimwishlist:item=214545213&perks=3661387068,106909392,776531651,2048641572,859855990#notes:Roll consigliati da Smailen
-//? Roll: Direzione controllata, Proiettili rifiniti, Stretta repulsiva, Proiettili destabilizzanti, Spara e corri
-dimwishlist:item=214545213&perks=839105230,3142289711,776531651,2048641572,859855990#notes:Roll perfetti consigliato da Smailen
-```
+Niente commenti `//? Roll:` che rompono i block notes in DIM.
 
 ## Come usare la lista su DIM
 
 1. Apri [DIM](https://app.destinyitemmanager.com/)
 2. Vai su **Impostazioni** > **Wishlist**
 3. Clicca su **Aggiungi wishlist**
-4. Incolla l'URL raw del file `godroll-list-dim.txt` da GitHub:
+4. Incolla l'URL raw del file generato da GitHub:
    ```
-   https://raw.githubusercontent.com/Smailen5/godroll-d2/main/godroll-list-dim.txt
+   https://raw.githubusercontent.com/Smailen5/godroll-d2/main/godroll/smailen/godroll.txt
    ```
 5. Salva e ricarica DIM
 
@@ -64,9 +74,24 @@ I roll salvati appariranno con un'icona a forma di pollice in su sugli oggetti c
 
 Il repository include alcuni script per gestire i roll:
 
+### `npm run generate`
+
+Genera il file DIM `.txt` dal file sorgente Markdown `.md`:
+
+```bash
+npm run generate -- godroll/smailen/godroll.md        # genera godroll.txt
+npm run generate -- --check godroll/smailen/godroll.md # solo validazione
+```
+
+Lo script:
+- Parsifica il file Markdown
+- Risolve nomi arma/perk in ID usando `weapons-reference.json` e `perks-reference.json`
+- Genera output DIM pulito (senza `//? Roll:` che rompono i block notes)
+- Valida sintassi, duplicati e coerenza ID
+
 ### `npm run validate`
 
-Valida la sintassi e la coerenza del file wishlist:
+Valida la sintassi e la coerenza del file wishlist legacy (`godroll-list-dim.txt`):
 - Controlla il formato delle righe `dimwishlist:`
 - Verifica che ogni ID perk sia presente in `perks-reference.json`
 - Verifica che i nomi nei commenti `//? Roll:` corrispondano agli ID nei roll
