@@ -50,7 +50,7 @@ function main() {
         if (match) {
           const [, , perksStr] = match;
           const perkIds = perksStr.split(',');
-          const perkNames = perkIds.map((id) => getPerkName(id, perksReference).toLowerCase());
+          const perkNames = perkIds.map((id) => id === '0' ? '-' : getPerkName(id, perksReference).toLowerCase());
           const comment = `//? Roll: ${perkNames.join(', ')}`;
 
           result.push(comment);

@@ -195,6 +195,11 @@ function main() {
       let hasMissing = false;
 
       for (const name of perkNames) {
+        if (name === '-') {
+          perkIds.push('0');
+          continue;
+        }
+
         let ids = perksByName[name];
 
         if (!ids && manifestIndex.size > 0) {
