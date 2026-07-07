@@ -1,0 +1,23 @@
+title:Godroll — Lista Desideri D2
+description:Wishlist personale e del clan
+
+//notes:Smailen (Misto): Roll consigliati per il PVE
+dimwishlist:item=214545213&perks=3661387068,106909392,776531651,2048641572,859855990#notes:Roll consigliati da Smailen
+dimwishlist:item=214545213&perks=839105230,3142289711,776531651,2048641572,859855990#notes:Roll perfetti consigliato da Smailen
+//notes:light.gg (Misto): Roll consigliati da light.gg
+dimwishlist:item=52683113&perks=839105230,3142289711,3891536761,3824105627,2327629476#notes:Roll consigliato da light.gg
+//notes:light.gg (PVP): Roll consigliati da light.gg
+dimwishlist:item=2204165992&perks=3250034553,3142289711,2387244414,460017080,1831023215#notes:PVP Consigliato
+//notes:Roll PVP
+dimwishlist:item=2204165992&perks=0,0,1820235745,3609952942,0
+dimwishlist:item=2204165992&perks=0,0,2387244414,460017080,0
+dimwishlist:item=2204165992&perks=0,0,1820235745,288411554,0
+dimwishlist:item=2204165992&perks=0,0,1645158859,3609952942,0
+//notes:Roll PVE
+dimwishlist:item=2204165992&perks=0,0,588594999,460017080,0
+dimwishlist:item=2204165992&perks=0,0,588594999,460017080,1831023215#notes:Smailen (PVP): Roll consigliato da light.gg, bersaglio mobile + cercateste + lupo furtivo
+dimwishlist:item=2204165992&perks=0,0,2387244414,460017080,1831023215#notes:Smailen (PVP): Roll consigliato da light.gg, momento zen + cercateste + lupo furtivo
+dimwishlist:item=2204165992&perks=839105230,1885400500,2387244414,460017080,1831023215#notes:Smailen (PVP): Godroll PVP consigliato da light.gg, momento zen + cercateste + lupo furtivo
+//notes:light.gg (PVP): Roll consigliati da light.gg per il PVP
+dimwishlist:item=2150012407&perks=4090651448,1968497646,2846385770,460017080,1673863459#notes:Smailen (PVP): Roll consigliato per il PVP secondo light.gg, telemetro
+dimwishlist:item=2150012407&perks=4090651448,1968497646,2387244414,460017080,1673863459#notes:Smailen (PVP): Roll consigliato per il PVP, momento zen invece di telemetro
