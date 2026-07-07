@@ -111,9 +111,20 @@ function saveWeaponsReference(data, manifest) {
 function getNextNonCommentIndex(lines, start) {
   for (let i = start; i < lines.length; i++) {
     const trimmed = lines[i].trim();
-    if (trimmed && !trimmed.startsWith('//')) return i;
+    if (!trimmed) continue;
+    if (WEAPON_COMMENT_REGEX.test(trimmed) || ROLL_COMMENT_REGEX.test(trimmed)) return -1;
+    if (!trimmed.startsWith('//')) return i;
   }
   return -1;
+}
+
+function findWeaponIdBefore(lines, currentIndex) {
+  for (let j = currentIndex - 1; j >= 0; j--) {
+    const trimmed = lines[j].trim();
+    const match = trimmed.match(/^dimwishlist:item=(\d+)/);
+    if (match) return match[1];
+  }
+  return null;
 }
 
 function main() {
@@ -156,30 +167,37 @@ function main() {
         continue;
       }
 
-      if (!currentWeapon) {
-        console.log(
-          `WARNING: "//? Roll:" senza "//*" arma precedente. Salto.`
-        );
-        result.push(line);
-        continue;
-      }
+      let weaponId;
 
-      const weaponNameLower = currentWeapon.toLowerCase();
-      let weaponId = weaponsByName[weaponNameLower];
+      if (currentWeapon) {
+        const weaponNameLower = currentWeapon.toLowerCase();
+        weaponId = weaponsByName[weaponNameLower];
 
-      if (!weaponId && manifestIndex.size > 0) {
-        const ids = manifestIndex.get(weaponNameLower);
-        if (ids && ids.length > 0) {
-          weaponId = ids[0];
-          weaponsByName[weaponNameLower] = weaponId;
-          weaponsChanged = true;
-          console.log(`  Aggiunta arma "${currentWeapon}" (ID: ${weaponId}) a weapons-reference.json`);
+        if (!weaponId && manifestIndex.size > 0) {
+          const ids = manifestIndex.get(weaponNameLower);
+          if (ids && ids.length > 0) {
+            weaponId = ids[0];
+            weaponsByName[weaponNameLower] = weaponId;
+            weaponsChanged = true;
+            console.log(`  Aggiunta arma "${currentWeapon}" (ID: ${weaponId}) a weapons-reference.json`);
+          }
         }
+
+        if (!weaponId) {
+          console.log(
+            `WARNING: arma "${currentWeapon}" non trovata. Esegui "npm run fetch-weapons" per aggiornare la cache e riprova.`
+          );
+          result.push(line);
+          continue;
+        }
+      } else {
+        weaponId = findWeaponIdBefore(lines, i);
+        console.log(`  Roll senza "//*", uso ID arma da dimwishlist precedente (${weaponId})`);
       }
 
       if (!weaponId) {
         console.log(
-          `WARNING: arma "${currentWeapon}" non trovata. Esegui "npm run fetch-weapons" per aggiornare la cache e riprova.`
+          `WARNING: "//? Roll:" senza "//*" arma precedente e nessun dimwishlist sopra. Salto.`
         );
         result.push(line);
         continue;

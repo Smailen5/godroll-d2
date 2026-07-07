@@ -9,6 +9,8 @@ dimwishlist:item=52683113&perks=839105230,3142289711,3891536761,3824105627,23276
 //* La Cuspide Logora
 //? Roll: rigatura martellata, proiettili rifiniti, momento zen, cercateste, lupo furtivo
 dimwishlist:item=2204165992&perks=3250034553,3142289711,2387244414,460017080,1831023215#notes:PVP Consigliato
+//? Roll: -, -, sussistenza, sguardo ferreo, -
+dimwishlist:item=2204165992&perks=0,0,1820235745,3609952942,0
 //* Vento Autunnale
 //? Roll: rigatura a spirale, proiettili perforanti, telemetro, cercateste, ruggito di battaglia
 dimwishlist:item=2150012407&perks=4090651448,1968497646,2846385770,460017080,1673863459#notes:Smailen (PVP): Roll consigliato per il PVP secondo light.gg, telemetro
