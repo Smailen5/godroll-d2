@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.0.0](https://github.com/Smailen5/godroll-d2/compare/v0.5.0...v1.0.0) (2026-07-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* genera file DIM da sorgente Markdown ([#54](https://github.com/Smailen5/godroll-d2/issues/54))
+
+### Nuove funzionalità
+
+* aggiunge roll per La Cuspide Logora e relativi perk IDs ([#52](https://github.com/Smailen5/godroll-d2/issues/52)) ([0fd2dd0](https://github.com/Smailen5/godroll-d2/commit/0fd2dd0f4dd31d815c5bbc30e3dea2ec79f8d023))
+* genera file DIM da sorgente Markdown ([#54](https://github.com/Smailen5/godroll-d2/issues/54)) ([35d4dd9](https://github.com/Smailen5/godroll-d2/commit/35d4dd98ce47d09dc877cb3c27fea8a4f5ee9f5e))
+
+
+### Correzione bug
+
+* disabilita bump-minor-pre-major per permettere breaking change a 1.0.0 ([#55](https://github.com/Smailen5/godroll-d2/issues/55)) ([0ebd7ef](https://github.com/Smailen5/godroll-d2/commit/0ebd7efc5b78e2d943aa5bbf91343f82c2999d22))
+* impedisce a getNextNonCommentIndex di oltrepassare il boundary dell'arma ([#50](https://github.com/Smailen5/godroll-d2/issues/50)) ([d59152c](https://github.com/Smailen5/godroll-d2/commit/d59152c1c89151bb09e18f904bbe5c66e84c9d7f))
+
 ## [0.5.0](https://github.com/Smailen5/godroll-d2/compare/v0.4.0...v0.5.0) (2026-07-07)
 
 
