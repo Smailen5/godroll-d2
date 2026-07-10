@@ -1,7 +1,7 @@
 # title: Godroll - Consigliati dall'AI
 ## description: Wishlist di roll consigliati dall'AI, potrebbero esserci errori.
 
-### La Rosa
+### Rosa
 - fonte: AI
 - attivita: PVP
 - notes: Roll consigliati dall'AI
