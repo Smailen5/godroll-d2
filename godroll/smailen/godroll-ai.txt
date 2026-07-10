@@ -1,0 +1,25 @@
+title:Godroll - Consigliati dall'AI
+description:Wishlist di roll consigliati dall'AI, potrebbero esserci errori.
+
+//notes:AI (PVP): Roll consigliati dall'AI
+dimwishlist:item=882778888&perks=4090651448,1840239774,0,0,0#notes:Canna: rigatura a spirale (+15 maneggevolezza), canna scanalata (gittata + maneggevolezza)
+dimwishlist:item=1041028434&perks=4090651448,1840239774,0,0,0#notes:Canna: rigatura a spirale (+15 maneggevolezza), canna scanalata (gittata + maneggevolezza)
+dimwishlist:item=882778888&perks=3142289711,0,0,0,0#notes:Caricatore: +10 gittata, essenziale per PVP
+dimwishlist:item=1041028434&perks=3142289711,0,0,0,0#notes:Caricatore: +10 gittata, essenziale per PVP
+dimwishlist:item=2429822976&perks=2635532173,0,0,0,0#notes:Caricatore: +10 gittata, essenziale per PVP
+dimwishlist:item=882778888&perks=3161816588,1428297954,0,0,0#notes:Perk 1: scivolata amplificata (+2 colpi e bonus gittata/stabilità dopo scivolata), moto perpetuo (premio movimento continuo)
+dimwishlist:item=882778888&perks=3038247973,699525795,0,0,0#notes:Perk 2: carica esplosiva (flinch brutale), occhio del ciclone (riduce cono precisione quando subisci danni)
+dimwishlist:item=1041028434&perks=3038247973,699525795,0,0,0#notes:Perk 2: carica esplosiva (flinch brutale), occhio del ciclone (riduce cono precisione quando subisci danni)
+//notes:AI (PVP): Roll consigliati dall'AI
+dimwishlist:item=673621062&perks=3250034553,4090651448,0,0,0#notes:Canna: rigatura martellata (gittata), rigatura a spirale (+15 maneggevolezza)
+dimwishlist:item=2510526114&perks=3250034553,4090651448,0,0,0#notes:Canna: rigatura martellata (gittata), rigatura a spirale (+15 maneggevolezza)
+dimwishlist:item=2579239009&perks=3250034553,4090651448,0,0,0#notes:Canna: rigatura martellata (gittata), rigatura a spirale (+15 maneggevolezza)
+dimwishlist:item=673621062&perks=3142289711,0,0,0,0#notes:Caricatore: +10 gittata, essenziale per PVP
+dimwishlist:item=2510526114&perks=3142289711,0,0,0,0#notes:Caricatore: +10 gittata, essenziale per PVP
+dimwishlist:item=2579239009&perks=3142289711,0,0,0,0#notes:Caricatore: +10 gittata, essenziale per PVP
+dimwishlist:item=673621062&perks=1359896290,3523296417,588594999,0,0#notes:Perk 1: oscillazione ridotta (laser dopo fuoco continuo), demolitore (granate su kill), bersaglio mobile (bonus movimento)
+dimwishlist:item=2510526114&perks=1359896290,3523296417,588594999,0,0#notes:Perk 1: oscillazione ridotta (laser dopo fuoco continuo), demolitore (granate su kill), bersaglio mobile (bonus movimento)
+dimwishlist:item=2579239009&perks=1359896290,3523296417,588594999,0,0#notes:Perk 1: oscillazione ridotta (laser dopo fuoco continuo), demolitore (granate su kill), bersaglio mobile (bonus movimento)
+dimwishlist:item=673621062&perks=365154968,2846385770,0,0,0#notes:Perk 2: aggancio bersaglio (danno crescente mirando), telemetro (gittata + stabilità)
+dimwishlist:item=2510526114&perks=365154968,2846385770,0,0,0#notes:Perk 2: aggancio bersaglio (danno crescente mirando), telemetro (gittata + stabilità)
+dimwishlist:item=2579239009&perks=365154968,2846385770,0,0,0#notes:Perk 2: aggancio bersaglio (danno crescente mirando), telemetro (gittata + stabilità)
