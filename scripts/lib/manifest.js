@@ -54,7 +54,7 @@ function cacheAgeHours() {
  * Shape:
  * {
  *   version:  manifest version string,
- *   weapons:  { <hash>: { name, type, plugSets: [<plugSetHash>, ...], perks: [<perkHash>, ...] } },
+ *   weapons:  { <hash>: { name, type, plugSets: [<plugSetHash>, ...], perks: [<perkHash>, ...], columns: [[perkHash, ...], ...], season: string } },
  *   perks:    { <hash>: { name, tier } },
  *   plugSets: { <plugSetHash>: [<perkHash>, ...] }
  * }
@@ -62,10 +62,23 @@ function cacheAgeHours() {
  * `perks` holds plug hashes wired directly on the socket (e.g. origin
  * traits use singleInitialItemHash/reusablePlugItems instead of plug sets).
  */
-function buildSlimCache(version, items, plugSetDefs) {
+function buildSlimCache(version, items, plugSetDefs, seasonDefs) {
   const weapons = {};
   const usedPlugSets = new Set();
   const directPerkHashes = new Set();
+
+  // Crea mappatura iconWatermark -> stagione
+  const watermarkToSeason = {
+    '/common/destiny2_content/icons/4f28dc0f39238fe25d298a894ea71389.png': 'Stagione 1 (Redesign)',
+    '/common/destiny2_content/icons/e78fd9419f99464816ac8f628bc3c4af.png': 'Stagione 13 (Stagione dei Prescelti)',
+    '/common/destiny2_content/icons/7b48b09fbb50634680168d5880b16bc9.png': 'Stagione 29 (Act of War)',
+  };
+  
+  for (const [seasonHash, season] of Object.entries(seasonDefs)) {
+    if (season.displayProperties?.icon) {
+      watermarkToSeason[season.displayProperties.icon] = season.displayProperties.name;
+    }
+  }
 
   for (const [hash, item] of Object.entries(items)) {
     if (item.itemType !== ITEM_TYPE_WEAPON) continue;
@@ -108,6 +121,11 @@ function buildSlimCache(version, items, plugSetDefs) {
 
     for (const ps of plugSets) usedPlugSets.add(ps);
     for (const p of perks) directPerkHashes.add(p);
+    
+    // Determina la stagione dall'iconWatermark
+    const watermark = item.iconWatermark || '';
+    const season = watermarkToSeason[watermark] || '';
+    
     weapons[hash] = {
       name,
       type: item.itemTypeDisplayName || '',
@@ -116,6 +134,9 @@ function buildSlimCache(version, items, plugSetDefs) {
       columns,
       columnPlugSets,
       displaySource: item.displaySource || '',
+      season,
+      iconWatermark: item.iconWatermark || '',
+      iconWatermarkShelved: item.iconWatermarkShelved || '',
     };
   }
 
@@ -177,7 +198,8 @@ async function downloadAndBuild(manifestIndex) {
   }
   const itemsPath = defs.DestinyInventoryItemDefinition;
   const plugSetsPath = defs.DestinyPlugSetDefinition;
-  if (!itemsPath || !plugSetsPath) {
+  const seasonsPath = defs.DestinySeasonDefinition;
+  if (!itemsPath || !plugSetsPath || !seasonsPath) {
     throw new Error('Definizioni necessarie non trovate nel manifest.');
   }
 
@@ -185,9 +207,11 @@ async function downloadAndBuild(manifestIndex) {
   const items = await fetchJson(BUNGIE_BASE + itemsPath);
   console.log('Scaricamento definizioni plug set...');
   const plugSetDefs = await fetchJson(BUNGIE_BASE + plugSetsPath);
+  console.log('Scaricamento definizioni stagioni...');
+  const seasonDefs = await fetchJson(BUNGIE_BASE + seasonsPath);
 
   console.log('Costruzione cache...');
-  const slim = buildSlimCache(manifestIndex.Response.version, items, plugSetDefs);
+  const slim = buildSlimCache(manifestIndex.Response.version, items, plugSetDefs, seasonDefs);
 
   if (!fs.existsSync(CACHE_DIR)) {
     fs.mkdirSync(CACHE_DIR, { recursive: true });

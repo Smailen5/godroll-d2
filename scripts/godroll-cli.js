@@ -294,9 +294,9 @@ async function searchWeapon(manifest) {
       if (matches.length > 1) {
         console.log(`\n${colorize('ℹ', 'cyan')} Trovate ${matches.length} versioni dell'arma:`);
         const versionOptions = matches.map(([hash, weapon]) => {
-          const source = weapon.displaySource || 'Versione originale';
+          const season = weapon.season || 'Stagione sconosciuta';
           const randomizable = (weapon.columns || []).filter(col => col.length > 1).length;
-          return `${source} (${randomizable} colonne)`;
+          return `${season} (${randomizable} colonne)`;
         });
         const selected = await selectFromList(versionOptions, 'Seleziona la versione');
         if (selected === null) {
@@ -324,9 +324,9 @@ async function searchWeapon(manifest) {
         if (allMatches.length > 1) {
           console.log(`\n${colorize('ℹ', 'cyan')} Trovate ${allMatches.length} versioni dell'arma:`);
           const versionOptions = allMatches.map(([hash, weapon]) => {
-            const source = weapon.displaySource || 'Versione originale';
+            const season = weapon.season || 'Stagione sconosciuta';
             const randomizable = (weapon.columns || []).filter(col => col.length > 1).length;
-            return `${source} (${randomizable} colonne)`;
+            return `${season} (${randomizable} colonne)`;
           });
           const selected = await selectFromList(versionOptions, 'Seleziona la versione');
           if (selected === null) {
