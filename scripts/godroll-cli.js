@@ -290,19 +290,26 @@ async function searchWeapon(manifest) {
     );
 
     if (matches.length > 0) {
-      // Seleziona la versione con più colonne randomizzabili (quella più recente)
-      let bestMatch = matches[0];
-      let bestRandomizable = 0;
-      for (const [hash, weapon] of matches) {
-        const randomizable = (weapon.columns || []).filter(col => col.length > 1).length;
-        if (randomizable > bestRandomizable) {
-          bestRandomizable = randomizable;
-          bestMatch = [hash, weapon];
+      // Se ci sono più versioni, fai scegliere all'utente
+      if (matches.length > 1) {
+        console.log(`\n${colorize('ℹ', 'cyan')} Trovate ${matches.length} versioni dell'arma:`);
+        const versionOptions = matches.map(([hash, weapon]) => {
+          const randomizable = (weapon.columns || []).filter(col => col.length > 1).length;
+          return `${weapon.name} (${randomizable} colonne perk)`;
+        });
+        const selected = await selectFromList(versionOptions, 'Seleziona la versione');
+        if (selected === null) {
+          console.log('Selezione annullata.');
+          process.exit(0);
         }
+        const [hash, weapon] = matches[selected];
+        console.log(`\n${colorize('✓', 'green')} Arma selezionata: ${colorize(weapon.name, 'bold')} (${weapon.type})`);
+        return { hash, weapon };
+      } else {
+        const [hash, weapon] = matches[0];
+        console.log(`\n${colorize('✓', 'green')} Arma trovata: ${colorize(weapon.name, 'bold')} (${weapon.type})`);
+        return { hash, weapon };
       }
-      const [hash, weapon] = bestMatch;
-      console.log(`\n${colorize('✓', 'green')} Arma trovata: ${colorize(weapon.name, 'bold')} (${weapon.type})`);
-      return { hash, weapon };
     }
 
     const suggestion = suggest(input, weaponNames);
@@ -313,19 +320,25 @@ async function searchWeapon(manifest) {
       const confirm = await ask(`Confermi? (s/n): `);
       if (confirm.toLowerCase() === 's') {
         const allMatches = Object.entries(manifest.weapons).filter(([h, w]) => w.name === suggestion);
-        // Seleziona la versione con più colonne randomizzabili
-        let bestMatch = allMatches[0];
-        let bestRandomizable = 0;
-        for (const [hash, weapon] of allMatches) {
-          const randomizable = (weapon.columns || []).filter(col => col.length > 1).length;
-          if (randomizable > bestRandomizable) {
-            bestRandomizable = randomizable;
-            bestMatch = [hash, weapon];
+        if (allMatches.length > 1) {
+          console.log(`\n${colorize('ℹ', 'cyan')} Trovate ${allMatches.length} versioni dell'arma:`);
+          const versionOptions = allMatches.map(([hash, weapon]) => {
+            const randomizable = (weapon.columns || []).filter(col => col.length > 1).length;
+            return `${weapon.name} (${randomizable} colonne perk)`;
+          });
+          const selected = await selectFromList(versionOptions, 'Seleziona la versione');
+          if (selected === null) {
+            console.log('Selezione annullata.');
+            process.exit(0);
           }
+          const [hash, weapon] = allMatches[selected];
+          console.log(`${colorize('✓', 'green')} Arma selezionata: ${colorize(weapon.name, 'bold')} (${weapon.type})`);
+          return { hash, weapon };
+        } else {
+          const [hash, weapon] = allMatches[0];
+          console.log(`${colorize('✓', 'green')} Arma selezionata: ${colorize(weapon.name, 'bold')} (${weapon.type})`);
+          return { hash, weapon };
         }
-        const [hash, weapon] = bestMatch;
-        console.log(`${colorize('✓', 'green')} Arma selezionata: ${colorize(weapon.name, 'bold')} (${weapon.type})`);
-        return { hash, weapon };
       }
     } else {
       console.log(`\n${colorize('✗', 'red')} Arma "${input}" non trovata.`);
@@ -362,11 +375,26 @@ async function selectPerks(manifest, weapon) {
       continue;
     }
 
+    // Filtra i perk per escludere shader, ricordi e perk non validi
     const perkMap = new Map();
     for (const hash of columnPerkHashes) {
       const perk = manifest.perks[hash];
       if (!perk) continue;
+      
       const name = perk.name;
+      
+      // Escludi perk non validi
+      if (name.startsWith('Ricordo ') || 
+          name.startsWith('Shader ') || 
+          name.startsWith('Livello ') ||
+          name === 'Alloggiamento vuoto' ||
+          name === 'Stile di combattimento predefinito' ||
+          name.startsWith('Potenziamento grado ') ||
+          name.includes('Conteggiouccisioni') ||
+          name === 'Decoro originale') {
+        continue;
+      }
+      
       if (!perkMap.has(name)) {
         perkMap.set(name, { hash, tier: perk.tier });
       } else {
