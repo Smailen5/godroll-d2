@@ -168,7 +168,7 @@ function buildSlimCache(version, items, plugSetDefs, seasonDefs) {
   }
 
   // Filtra i plugSet troppo grandi (probabilmente shader/ornament)
-  const MAX_PERKS_PER_COLUMN = 50;
+  const MAX_PERKS_PER_COLUMN = 30;
   for (const [hash, weapon] of Object.entries(weapons)) {
     const expandedColumns = [];
     for (let i = 0; i < weapon.columns.length; i++) {

@@ -342,8 +342,11 @@ async function selectPerks(manifest, weapon) {
   const perks = [];
 
   const randomizableColumns = (weapon.columns || []).filter(col => col.length > 1);
+  
+  // Limita a 5 colonne massimo (canna, caricatore, perk1, perk2, trait)
+  const maxColumns = Math.min(randomizableColumns.length, 5);
 
-  if (randomizableColumns.length === 0) {
+  if (maxColumns === 0) {
     console.log(`\n${colorize('⚠', 'yellow')} Nessuna colonna randomizzabile trovata per quest'arma.`);
     console.log('  L\'arma potrebbe avere solo perk fissi (intrinsic/origin trait).');
     const confirm = await ask('  Vuoi comunque procedere con 5 colonne vuote? (s/n): ');
@@ -358,6 +361,12 @@ async function selectPerks(manifest, weapon) {
   for (let col = 0; col < 5; col++) {
     clearScreen();
     console.log(`${colorize(`--- Colonna ${col + 1} di 5 ---`, 'cyan', 'bold')}\n`);
+
+    if (col >= maxColumns) {
+      console.log('Nessun perk disponibile per questa colonna.');
+      perks.push(WILDCARD_PERK_ID);
+      continue;
+    }
 
     const columnPerkHashes = randomizableColumns[col] || [];
 
