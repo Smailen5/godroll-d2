@@ -97,7 +97,8 @@ async function selectFromList(options, prompt = 'Seleziona') {
     function cleanup() {
       stdin.setRawMode(false);
       stdin.removeListener('data', onData);
-      process.stdout.write('\n');
+      // Pulisci completamente lo schermo
+      process.stdout.write('\x1b[2J\x1b[H');
     }
 
     stdin.on('data', onData);
@@ -534,7 +535,9 @@ async function main() {
     console.log(`${colorize('--- Modifica Wishlist ---', 'cyan', 'bold')}\n`);
 
     const user = await selectUser();
-    console.log(`\n${colorize('✓', 'green')} Wishlist selezionata: ${colorize(user, 'bold')}`);
+    clearScreen();
+    console.log(`${colorize('--- Modifica Wishlist ---', 'cyan', 'bold')}\n`);
+    console.log(`${colorize('✓', 'green')} Wishlist selezionata: ${colorize(user, 'bold')}\n`);
 
     targetFile = await selectTxtFile(user);
     clearScreen();
