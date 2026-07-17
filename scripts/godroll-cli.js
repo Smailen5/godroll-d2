@@ -40,24 +40,36 @@ function ask(question) {
 async function selectFromList(options, prompt = 'Seleziona') {
   return new Promise((resolve) => {
     let selectedIndex = 0;
+    let linesPrinted = 0;
     const stdin = process.stdin;
+
+    if (!stdin.isTTY) {
+      console.error('Errore: la CLI richiede un terminale interattivo.');
+      process.exit(1);
+    }
 
     stdin.setRawMode(true);
     stdin.resume();
     stdin.setEncoding('utf8');
 
+    const hintLine = `${colorize('↑↓', 'dim')} naviga  ${colorize('↵', 'dim')} conferma  ${colorize('q', 'dim')} annulla`;
+
     function render() {
-      process.stdout.write(`\x1b[${options.length + 2}A\x1b[J`);
+      if (linesPrinted > 0) {
+        process.stdout.write(`\x1b[${linesPrinted}A\x1b[J`);
+      }
+
       console.log(`${colorize(prompt, 'cyan')}:`);
       options.forEach((opt, i) => {
         const marker = i === selectedIndex ? colorize('▶', 'cyan') : ' ';
         const text = i === selectedIndex ? colorize(opt, 'bold') : opt;
         console.log(`  ${marker} ${text}`);
       });
-      console.log(`\n${colorize('↑↓', 'dim')} naviga  ${colorize('↵', 'dim')} conferma  ${colorize('q', 'dim')} annulla`);
+      console.log(hintLine);
+
+      linesPrinted = options.length + 2;
     }
 
-    console.log('');
     render();
 
     const onData = (key) => {
@@ -84,7 +96,6 @@ async function selectFromList(options, prompt = 'Seleziona') {
 
     function cleanup() {
       stdin.setRawMode(false);
-      stdin.pause();
       stdin.removeListener('data', onData);
       process.stdout.write('\n');
     }
@@ -183,12 +194,15 @@ async function searchWeapon(manifest) {
 
     const suggestion = suggest(input, weaponNames);
     if (suggestion) {
-      const confirm = await ask(`\nForse intendevi "${colorize(suggestion, 'yellow')}"? (s/n): `);
+      const suggestedWeapon = Object.values(manifest.weapons).find(w => w.name === suggestion);
+      const typeInfo = suggestedWeapon ? ` (${suggestedWeapon.type})` : '';
+      console.log(`\n${colorize('💡', 'yellow')} Forse intendevi ${colorize(suggestion + typeInfo, 'yellow', 'bold')}?`);
+      const confirm = await ask(`Confermi? (s/n): `);
       if (confirm.toLowerCase() === 's') {
         const match = Object.entries(manifest.weapons).find(([h, w]) => w.name === suggestion);
         if (match) {
           const [hash, weapon] = match;
-          console.log(`\n${colorize('✓', 'green')} Arma selezionata: ${colorize(weapon.name, 'bold')} (${weapon.type})`);
+          console.log(`${colorize('✓', 'green')} Arma selezionata: ${colorize(weapon.name, 'bold')} (${weapon.type})`);
           return { hash, weapon };
         }
       }
