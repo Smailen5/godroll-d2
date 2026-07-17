@@ -416,6 +416,7 @@ async function selectPerks(manifest, weapon) {
 
     const listOptions = perkOptions.map(p => p.name);
     listOptions.push(colorize('Qualsiasi (nessun perk specifico)', 'yellow'));
+    listOptions.push(colorize('← Torna indietro', 'dim'));
 
     const selected = await selectFromList(listOptions, 'Perk disponibili');
 
@@ -424,7 +425,21 @@ async function selectPerks(manifest, weapon) {
       process.exit(0);
     }
 
+    // Se ha selezionato "Torna indietro"
     if (selected === listOptions.length - 1) {
+      if (col === 0) {
+        // Se siamo alla prima colonna, torna alla selezione arma
+        console.log(`\n${colorize('ℹ', 'cyan')} Tornando alla selezione arma...`);
+        return null; // Indica che dobbiamo tornare indietro
+      } else {
+        // Altrimenti rimuovi l'ultimo perk e decrementa col
+        perks.pop();
+        col -= 2; // -1 per il decremento del loop, -1 per tornare alla colonna precedente
+        continue;
+      }
+    }
+
+    if (selected === listOptions.length - 2) {
       perks.push(WILDCARD_PERK_ID);
       console.log(`${colorize('✓', 'green')} Selezionato: ${colorize('Qualsiasi', 'yellow', 'bold')}`);
     } else {
@@ -653,6 +668,14 @@ async function main() {
     }
 
     const perkIds = await selectPerks(manifest, weapon);
+
+    // Se l'utente ha scelto di tornare indietro
+    if (perkIds === null) {
+      currentWeapon = null;
+      currentWeaponHash = null;
+      currentAllWeaponHashes = null;
+      continue;
+    }
 
     clearScreen();
     console.log(`${colorize('=== Recap ===', 'cyan', 'bold')}`);

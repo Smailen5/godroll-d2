@@ -68,12 +68,24 @@ function buildSlimCache(version, items, plugSetDefs, seasonDefs) {
   const directPerkHashes = new Set();
 
   // Crea mappatura iconWatermark -> stagione
+  // I watermark delle armi non corrispondono direttamente alle icone delle stagioni
+  // Quindi creiamo una mappatura basata sui numeri di stagione
+  const seasonNumberToName = {};
+  for (const [seasonHash, season] of Object.entries(seasonDefs)) {
+    if (season.seasonNumber && season.displayProperties?.name) {
+      seasonNumberToName[season.seasonNumber] = season.displayProperties.name;
+    }
+  }
+  
+  // Mappatura hardcoded dei watermark noti alle stagioni
+  // Questi sono stati identificati manualmente
   const watermarkToSeason = {
-    '/common/destiny2_content/icons/4f28dc0f39238fe25d298a894ea71389.png': 'Stagione 1 (Redesign)',
-    '/common/destiny2_content/icons/e78fd9419f99464816ac8f628bc3c4af.png': 'Stagione 13 (Stagione dei Prescelti)',
-    '/common/destiny2_content/icons/7b48b09fbb50634680168d5880b16bc9.png': 'Stagione 29 (Act of War)',
+    '/common/destiny2_content/icons/4f28dc0f39238fe25d298a894ea71389.png': 'Versione originale',
+    '/common/destiny2_content/icons/e78fd9419f99464816ac8f628bc3c4af.png': seasonNumberToName[13] || 'Stagione 13',
+    '/common/destiny2_content/icons/7b48b09fbb50634680168d5880b16bc9.png': seasonNumberToName[28] || 'Stagione 28',
   };
   
+  // Aggiungi anche le icone delle stagioni
   for (const [seasonHash, season] of Object.entries(seasonDefs)) {
     if (season.displayProperties?.icon) {
       watermarkToSeason[season.displayProperties.icon] = season.displayProperties.name;
