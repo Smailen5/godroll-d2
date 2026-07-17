@@ -552,61 +552,77 @@ async function main() {
     process.exit(1);
   }
 
-  const { hash: weaponHash, weapon } = await searchWeapon(manifest);
-  
-  const allWeaponHashes = Object.entries(manifest.weapons)
-    .filter(([h, w]) => w.name === weapon.name)
-    .map(([h]) => h);
+  while (true) {
+    const { hash: weaponHash, weapon } = await searchWeapon(manifest);
+    
+    const allWeaponHashes = Object.entries(manifest.weapons)
+      .filter(([h, w]) => w.name === weapon.name)
+      .map(([h]) => h);
 
-  const perkIds = await selectPerks(manifest, weapon);
+    const perkIds = await selectPerks(manifest, weapon);
 
-  clearScreen();
-  console.log(`${colorize('=== Recap ===', 'cyan', 'bold')}`);
-  console.log(`Arma: ${colorize(weapon.name, 'bold')}`);
-  console.log(`Perk:`);
-  perkIds.forEach((perkHash, i) => {
-    if (perkHash === WILDCARD_PERK_ID) {
-      console.log(`  Colonna ${i + 1}: ${colorize('Qualsiasi', 'yellow', 'bold')}`);
+    clearScreen();
+    console.log(`${colorize('=== Recap ===', 'cyan', 'bold')}`);
+    console.log(`Arma: ${colorize(weapon.name, 'bold')}`);
+    console.log(`Perk:`);
+    perkIds.forEach((perkHash, i) => {
+      if (perkHash === WILDCARD_PERK_ID) {
+        console.log(`  Colonna ${i + 1}: ${colorize('Qualsiasi', 'yellow', 'bold')}`);
+      } else {
+        const perk = manifest.perks[perkHash];
+        console.log(`  Colonna ${i + 1}: ${perk?.name || 'Sconosciuto'}`);
+      }
+    });
+
+    const note = await askNote();
+
+    const outputFile = targetFile.replace(/\.txt$/, '-new.txt');
+    const fileExisted = fs.existsSync(outputFile);
+    
+    let txtContent;
+    if (fileExisted) {
+      txtContent = fs.readFileSync(outputFile, 'utf-8');
     } else {
-      const perk = manifest.perks[perkHash];
-      console.log(`  Colonna ${i + 1}: ${perk?.name || 'Sconosciuto'}`);
+      txtContent = fs.readFileSync(targetFile, 'utf-8');
     }
-  });
 
-  const note = await askNote();
+    const { duplicate, line } = checkDuplicates(txtContent, weaponHash, perkIds);
 
-  const outputFile = targetFile.replace(/\.txt$/, '-new.txt');
-  const fileExisted = fs.existsSync(outputFile);
-  
-  let txtContent;
-  if (fileExisted) {
-    txtContent = fs.readFileSync(outputFile, 'utf-8');
-  } else {
-    txtContent = fs.readFileSync(targetFile, 'utf-8');
-  }
-
-  const { duplicate, line } = checkDuplicates(txtContent, weaponHash, perkIds);
-
-  if (duplicate) {
-    console.log(`\n${colorize('⚠ ATTENZIONE:', 'yellow', 'bold')} Questo roll esiste già alla riga ${colorize(String(line), 'yellow')}!`);
-    const confirm = await ask('Vuoi comunque aggiungerlo? (s/n): ');
-    if (confirm.toLowerCase() !== 's') {
-      console.log('Operazione annullata.');
-      process.exit(0);
+    if (duplicate) {
+      console.log(`\n${colorize('⚠ ATTENZIONE:', 'yellow', 'bold')} Questo roll esiste già alla riga ${colorize(String(line), 'yellow')}!`);
+      const confirm = await ask('Vuoi comunque aggiungerlo? (s/n): ');
+      if (confirm.toLowerCase() !== 's') {
+        console.log('Roll saltato.');
+        const addAnother = await ask(`\n${colorize('Vuoi aggiungere un altro roll?', 'cyan')} (s/n): `);
+        if (addAnother.toLowerCase() !== 's') {
+          break;
+        }
+        continue;
+      }
     }
+
+    const newContent = appendRoll(txtContent, weaponHash, perkIds, note, weapon.name, weapon.type, allWeaponHashes);
+
+    fs.writeFileSync(outputFile, newContent);
+
+    console.log(`\n${colorize('✓', 'green')} Roll aggiunto a: ${colorize(path.basename(outputFile), 'bold')}`);
+    if (fileExisted) {
+      console.log(`  (aggiornato)`);
+    } else {
+      console.log(`  (copia di ${colorize(path.basename(targetFile), 'dim')})`);
+    }
+
+    targetFile = outputFile;
+
+    const addAnother = await ask(`\n${colorize('Vuoi aggiungere un altro roll?', 'cyan')} (s/n): `);
+    if (addAnother.toLowerCase() !== 's') {
+      break;
+    }
+    
+    clearScreen();
   }
 
-  const newContent = appendRoll(txtContent, weaponHash, perkIds, note, weapon.name, weapon.type, allWeaponHashes);
-
-  fs.writeFileSync(outputFile, newContent);
-
-  console.log(`\n${colorize('✓', 'green')} Roll aggiunto a: ${colorize(path.basename(outputFile), 'bold')}`);
-  if (fileExisted) {
-    console.log(`  (aggiornato)`);
-  } else {
-    console.log(`  (copia di ${colorize(path.basename(targetFile), 'dim')})`);
-  }
-
+  console.log(`\n${colorize('✓', 'green')} Operazione completata!`);
   rl.close();
 }
 
