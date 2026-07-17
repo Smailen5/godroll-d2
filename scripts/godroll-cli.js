@@ -552,12 +552,46 @@ async function main() {
     process.exit(1);
   }
 
+  let currentWeapon = null;
+  let currentWeaponHash = null;
+  let currentAllWeaponHashes = null;
+
   while (true) {
-    const { hash: weaponHash, weapon } = await searchWeapon(manifest);
-    
-    const allWeaponHashes = Object.entries(manifest.weapons)
-      .filter(([h, w]) => w.name === weapon.name)
-      .map(([h]) => h);
+    let weapon, weaponHash, allWeaponHashes;
+
+    if (currentWeapon) {
+      clearScreen();
+      const actionOptions = [
+        `Aggiungi un nuovo roll per ${currentWeapon.name}`,
+        'Aggiungi un nuovo roll per un\'arma diversa',
+        'Fine'
+      ];
+      const actionSelected = await selectFromList(actionOptions, 'Cosa vuoi fare');
+
+      if (actionSelected === null || actionSelected === 2) {
+        break;
+      }
+
+      if (actionSelected === 0) {
+        weapon = currentWeapon;
+        weaponHash = currentWeaponHash;
+        allWeaponHashes = currentAllWeaponHashes;
+      } else {
+        const result = await searchWeapon(manifest);
+        weapon = result.weapon;
+        weaponHash = result.hash;
+        allWeaponHashes = Object.entries(manifest.weapons)
+          .filter(([h, w]) => w.name === weapon.name)
+          .map(([h]) => h);
+      }
+    } else {
+      const result = await searchWeapon(manifest);
+      weapon = result.weapon;
+      weaponHash = result.hash;
+      allWeaponHashes = Object.entries(manifest.weapons)
+        .filter(([h, w]) => w.name === weapon.name)
+        .map(([h]) => h);
+    }
 
     const perkIds = await selectPerks(manifest, weapon);
 
@@ -593,10 +627,9 @@ async function main() {
       const confirm = await ask('Vuoi comunque aggiungerlo? (s/n): ');
       if (confirm.toLowerCase() !== 's') {
         console.log('Roll saltato.');
-        const addAnother = await ask(`\n${colorize('Vuoi aggiungere un altro roll?', 'cyan')} (s/n): `);
-        if (addAnother.toLowerCase() !== 's') {
-          break;
-        }
+        currentWeapon = weapon;
+        currentWeaponHash = weaponHash;
+        currentAllWeaponHashes = allWeaponHashes;
         continue;
       }
     }
@@ -613,13 +646,9 @@ async function main() {
     }
 
     targetFile = outputFile;
-
-    const addAnother = await ask(`\n${colorize('Vuoi aggiungere un altro roll?', 'cyan')} (s/n): `);
-    if (addAnother.toLowerCase() !== 's') {
-      break;
-    }
-    
-    clearScreen();
+    currentWeapon = weapon;
+    currentWeaponHash = weaponHash;
+    currentAllWeaponHashes = allWeaponHashes;
   }
 
   console.log(`\n${colorize('✓', 'green')} Operazione completata!`);
