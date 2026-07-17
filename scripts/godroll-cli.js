@@ -612,15 +612,7 @@ async function main() {
 
     const note = await askNote();
 
-    const outputFile = targetFile.replace(/\.txt$/, '-new.txt');
-    const fileExisted = fs.existsSync(outputFile);
-    
-    let txtContent;
-    if (fileExisted) {
-      txtContent = fs.readFileSync(outputFile, 'utf-8');
-    } else {
-      txtContent = fs.readFileSync(targetFile, 'utf-8');
-    }
+    let txtContent = fs.readFileSync(targetFile, 'utf-8');
 
     const { duplicate, line } = checkDuplicates(txtContent, weaponHash, perkIds);
 
@@ -638,16 +630,9 @@ async function main() {
 
     const newContent = appendRoll(txtContent, weaponHash, perkIds, note, weapon.name, weapon.type, allWeaponHashes);
 
-    fs.writeFileSync(outputFile, newContent);
+    fs.writeFileSync(targetFile, newContent);
 
-    console.log(`\n${colorize('✓', 'green')} Roll aggiunto a: ${colorize(path.basename(outputFile), 'bold')}`);
-    if (fileExisted) {
-      console.log(`  (aggiornato)`);
-    } else {
-      console.log(`  (copia di ${colorize(path.basename(targetFile), 'dim')})`);
-    }
-
-    targetFile = outputFile;
+    console.log(`\n${colorize('✓', 'green')} Roll aggiunto a: ${colorize(path.basename(targetFile), 'bold')}`);
     currentWeapon = weapon;
     currentWeaponHash = weaponHash;
     currentAllWeaponHashes = allWeaponHashes;
