@@ -8,6 +8,6 @@
     "generate": "node scripts/generate-dim-wishlist.js",
     "add-roll-comments": "node scripts/add-roll-comments.js",
     "add-roll-from-comments": "node scripts/add-roll-from-comments.js",
-    "cli": "node scripts/godroll-cli.js"
+    "godroll": "node scripts/godroll-cli.js"
   }
 }

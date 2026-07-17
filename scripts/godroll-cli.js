@@ -8,6 +8,22 @@ const { loadManifest } = require('./lib/manifest');
 
 const WILDCARD_PERK_ID = '0';
 
+const colors = {
+  reset: '\x1b[0m',
+  bold: '\x1b[1m',
+  dim: '\x1b[2m',
+  red: '\x1b[31m',
+  green: '\x1b[32m',
+  yellow: '\x1b[33m',
+  blue: '\x1b[34m',
+  magenta: '\x1b[35m',
+  cyan: '\x1b[36m',
+};
+
+function colorize(text, ...styles) {
+  return styles.map(s => colors[s]).join('') + text + colors.reset;
+}
+
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
@@ -69,14 +85,14 @@ async function selectTxtFile() {
   const txtFiles = fs.readdirSync(godrollDir).filter(f => f.endsWith('.txt'));
 
   if (txtFiles.length === 0) {
-    console.log('Nessun file .txt trovato in godroll/smailen/');
+    console.log(`${colorize('✗', 'red')} Nessun file .txt trovato in godroll/smailen/`);
     process.exit(1);
   }
 
-  console.log('\nSeleziona il file .txt target:');
-  txtFiles.forEach((f, i) => console.log(`  ${i + 1}. ${f}`));
+  console.log(`\n${colorize('Seleziona il file .txt target:', 'cyan')}`);
+  txtFiles.forEach((f, i) => console.log(`  ${colorize(String(i + 1), 'yellow')}. ${f}`));
 
-  const choice = await ask('\nNumero (o invia per annullare): ');
+  const choice = await ask(`\n${colorize('Numero', 'cyan')} (o invia per annullare): `);
   const idx = parseInt(choice) - 1;
 
   if (isNaN(idx) || idx < 0 || idx >= txtFiles.length) {
@@ -91,7 +107,7 @@ async function searchWeapon(manifest) {
   const weaponNames = Object.values(manifest.weapons).map(w => w.name);
 
   while (true) {
-    const input = await ask('\nNome dell\'arma (o "q" per uscire): ');
+    const input = await ask(`\n${colorize('Nome dell\'arma', 'cyan')} (o "q" per uscire): `);
 
     if (input.toLowerCase() === 'q') {
       console.log('Ricerca annullata.');
@@ -105,23 +121,23 @@ async function searchWeapon(manifest) {
 
     if (matches.length > 0) {
       const [hash, weapon] = matches[0];
-      console.log(`\n✓ Arma trovata: ${weapon.name} (${weapon.type})`);
+      console.log(`\n${colorize('✓', 'green')} Arma trovata: ${colorize(weapon.name, 'bold')} (${weapon.type})`);
       return { hash, weapon };
     }
 
     const suggestion = suggest(input, weaponNames);
     if (suggestion) {
-      const confirm = await ask(`\nForse intendevi "${suggestion}"? (s/n): `);
+      const confirm = await ask(`\nForse intendevi "${colorize(suggestion, 'yellow')}"? (s/n): `);
       if (confirm.toLowerCase() === 's') {
         const match = Object.entries(manifest.weapons).find(([h, w]) => w.name === suggestion);
         if (match) {
           const [hash, weapon] = match;
-          console.log(`\n✓ Arma selezionata: ${weapon.name} (${weapon.type})`);
+          console.log(`\n${colorize('✓', 'green')} Arma selezionata: ${colorize(weapon.name, 'bold')} (${weapon.type})`);
           return { hash, weapon };
         }
       }
     } else {
-      console.log(`\n✗ Arma "${input}" non trovata.`);
+      console.log(`\n${colorize('✗', 'red')} Arma "${input}" non trovata.`);
     }
   }
 }
@@ -132,7 +148,7 @@ async function selectPerks(manifest, weapon) {
   const randomizableColumns = (weapon.columns || []).filter(col => col.length > 1);
 
   if (randomizableColumns.length === 0) {
-    console.log('\n⚠ Nessuna colonna randomizzabile trovata per quest\'arma.');
+    console.log(`\n${colorize('⚠', 'yellow')} Nessuna colonna randomizzabile trovata per quest'arma.`);
     console.log('  L\'arma potrebbe avere solo perk fissi (intrinsic/origin trait).');
     const confirm = await ask('  Vuoi comunque procedere con 5 colonne vuote? (s/n): ');
     if (confirm.toLowerCase() !== 's') {
@@ -144,7 +160,7 @@ async function selectPerks(manifest, weapon) {
   }
 
   for (let col = 0; col < 5; col++) {
-    console.log(`\n--- Colonna ${col + 1} ---`);
+    console.log(`\n${colorize(`--- Colonna ${col + 1} ---`, 'cyan', 'bold')}`);
 
     const columnPerkHashes = randomizableColumns[col] || [];
 
@@ -154,16 +170,31 @@ async function selectPerks(manifest, weapon) {
       continue;
     }
 
-    const perkOptions = columnPerkHashes.map(hash => {
+    const perkMap = new Map();
+    for (const hash of columnPerkHashes) {
       const perk = manifest.perks[hash];
-      return { hash, name: perk?.name || 'Sconosciuto' };
-    });
+      if (!perk) continue;
+      const name = perk.name;
+      if (!perkMap.has(name)) {
+        perkMap.set(name, { hash, tier: perk.tier });
+      } else {
+        const existing = perkMap.get(name);
+        if (perk.tier < existing.tier) {
+          perkMap.set(name, { hash, tier: perk.tier });
+        }
+      }
+    }
+
+    const perkOptions = Array.from(perkMap.entries()).map(([name, data]) => ({
+      hash: data.hash,
+      name,
+    }));
 
     perkOptions.sort((a, b) => a.name.localeCompare(b.name));
 
     console.log('\nPerk disponibili:');
     perkOptions.forEach((p, i) => console.log(`  ${i + 1}. ${p.name}`));
-    console.log(`  0. Qualsiasi (nessun perk specifico)`);
+    console.log(`  ${colorize('0. Qualsiasi (nessun perk specifico)', 'yellow', 'bold')}`);
 
     while (true) {
       const choice = await ask('\nNumero del perk (o 0 per "qualsiasi"): ');
@@ -171,18 +202,18 @@ async function selectPerks(manifest, weapon) {
 
       if (idx === 0) {
         perks.push(WILDCARD_PERK_ID);
-        console.log('✓ Selezionato: Qualsiasi');
+        console.log(`${colorize('✓', 'green')} Selezionato: ${colorize('Qualsiasi', 'yellow', 'bold')}`);
         break;
       }
 
       if (idx > 0 && idx <= perkOptions.length) {
         const selected = perkOptions[idx - 1];
         perks.push(selected.hash);
-        console.log(`✓ Selezionato: ${selected.name}`);
+        console.log(`${colorize('✓', 'green')} Selezionato: ${selected.name}`);
         break;
       }
 
-      console.log('Selezione non valida. Riprova.');
+      console.log(`${colorize('✗', 'red')} Selezione non valida. Riprova.`);
     }
   }
 
@@ -190,22 +221,29 @@ async function selectPerks(manifest, weapon) {
 }
 
 async function askNote() {
-  const noteType = await ask('\nVuoi aggiungere una nota? (i=nline, b=lock, n=essuna): ');
+  while (true) {
+    const noteType = await ask(`\n${colorize('Vuoi aggiungere una nota?', 'cyan')} (${colorize('i', 'yellow')}=inline, ${colorize('b', 'yellow')}=block, ${colorize('n', 'yellow')}=nessuna): `);
+    const type = noteType.toLowerCase().trim();
 
-  if (noteType.toLowerCase() === 'n') {
-    return null;
+    if (type === 'n') {
+      return null;
+    }
+
+    if (type === 'i' || type === 'b') {
+      const noteText = await ask('Testo della nota: ');
+
+      if (!noteText.trim()) {
+        return null;
+      }
+
+      return {
+        type: type === 'i' ? 'inline' : 'block',
+        text: noteText.trim(),
+      };
+    }
+
+    console.log(`${colorize('✗', 'red')} Input non valido. Usa 'i', 'b' o 'n'.`);
   }
-
-  const noteText = await ask('Testo della nota: ');
-
-  if (!noteText.trim()) {
-    return null;
-  }
-
-  return {
-    type: noteType.toLowerCase() === 'i' ? 'inline' : 'block',
-    text: noteText.trim(),
-  };
 }
 
 function checkDuplicates(txtContent, weaponHash, perkIds) {
@@ -252,37 +290,46 @@ function appendRoll(txtContent, weaponHash, perkIds, note) {
 }
 
 async function main() {
-  const args = process.argv.slice(2);
-  const command = args[0];
+  console.log(`\n${colorize('=== Godroll CLI ===', 'cyan', 'bold')}\n`);
+  console.log(`${colorize('Cosa vuoi fare?', 'cyan')}`);
+  console.log(`  ${colorize('1', 'yellow')}. Aggiungi un nuovo roll`);
+  console.log(`  ${colorize('q', 'yellow')}. Esci\n`);
 
-  if (command !== 'add') {
-    console.log('Uso: node godroll-cli.js add');
+  const choice = await ask(`${colorize('Scelta', 'cyan')}: `);
+
+  if (choice.toLowerCase() === 'q' || choice.trim() === '') {
+    console.log('Arrivederci!');
+    process.exit(0);
+  }
+
+  if (choice !== '1') {
+    console.log(`${colorize('✗', 'red')} Scelta non valida.`);
     process.exit(1);
   }
 
-  console.log('=== Godroll CLI - Aggiungi Roll ===\n');
+  console.log(`\n${colorize('--- Aggiungi Roll ---', 'cyan', 'bold')}\n`);
 
   let manifest;
   try {
     manifest = await loadManifest();
   } catch (err) {
-    console.log(`Errore caricamento manifest: ${err.message}`);
+    console.log(`${colorize('✗', 'red')} Errore caricamento manifest: ${err.message}`);
     process.exit(1);
   }
 
   const targetFile = await selectTxtFile();
-  console.log(`\nFile selezionato: ${path.basename(targetFile)}`);
+  console.log(`\n${colorize('✓', 'green')} File selezionato: ${colorize(path.basename(targetFile), 'bold')}`);
 
   const { hash: weaponHash, weapon } = await searchWeapon(manifest);
 
   const perkIds = await selectPerks(manifest, weapon);
 
-  console.log('\n=== Recap ===');
-  console.log(`Arma: ${weapon.name}`);
+  console.log(`\n${colorize('=== Recap ===', 'cyan', 'bold')}`);
+  console.log(`Arma: ${colorize(weapon.name, 'bold')}`);
   console.log(`Perk:`);
   perkIds.forEach((perkHash, i) => {
     if (perkHash === WILDCARD_PERK_ID) {
-      console.log(`  Colonna ${i + 1}: Qualsiasi`);
+      console.log(`  Colonna ${i + 1}: ${colorize('Qualsiasi', 'yellow', 'bold')}`);
     } else {
       const perk = manifest.perks[perkHash];
       console.log(`  Colonna ${i + 1}: ${perk?.name || 'Sconosciuto'}`);
@@ -295,7 +342,7 @@ async function main() {
   const { duplicate, line } = checkDuplicates(txtContent, weaponHash, perkIds);
 
   if (duplicate) {
-    console.log(`\n⚠ ATTENZIONE: Questo roll esiste già alla riga ${line}!`);
+    console.log(`\n${colorize('⚠ ATTENZIONE:', 'yellow', 'bold')} Questo roll esiste già alla riga ${colorize(String(line), 'yellow')}!`);
     const confirm = await ask('Vuoi comunque aggiungerlo? (s/n): ');
     if (confirm.toLowerCase() !== 's') {
       console.log('Operazione annullata.');
@@ -308,8 +355,8 @@ async function main() {
   const outputFile = targetFile.replace(/\.txt$/, '-new.txt');
   fs.writeFileSync(outputFile, newContent);
 
-  console.log(`\n✓ Roll aggiunto a: ${path.basename(outputFile)}`);
-  console.log(`  (copia di ${path.basename(targetFile)})`);
+  console.log(`\n${colorize('✓', 'green')} Roll aggiunto a: ${colorize(path.basename(outputFile), 'bold')}`);
+  console.log(`  (copia di ${colorize(path.basename(targetFile), 'dim')})`);
 
   rl.close();
 }
