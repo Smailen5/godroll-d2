@@ -335,7 +335,7 @@ function checkDuplicates(txtContent, weaponHash, perkIds) {
   return { duplicate: false };
 }
 
-function appendRoll(txtContent, weaponHash, perkIds, note, weaponName, weaponType) {
+function appendRoll(txtContent, weaponHash, perkIds, note, weaponName, weaponType, allWeaponHashes) {
   const paddedPerkIds = [...perkIds];
   while (paddedPerkIds.length < 5) {
     paddedPerkIds.push(WILDCARD_PERK_ID);
@@ -380,11 +380,30 @@ function appendRoll(txtContent, weaponHash, perkIds, note, weaponName, weaponTyp
       newLines.splice(insertPos, 0, dimLine);
     }
   } else {
-    newLines = [...lines];
-    const trimmedContent = txtContent.trimEnd();
+    newLines = [];
+    const existingRolls = [];
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (line.startsWith('dimwishlist:item=')) {
+        const match = line.match(/item=(\d+)/);
+        if (match && allWeaponHashes.includes(match[1])) {
+          existingRolls.push(lines[i]);
+          continue;
+        }
+      }
+      newLines.push(lines[i]);
+    }
+    
+    const trimmedContent = newLines.join('\n').trimEnd();
     newLines = trimmedContent.split('\n');
     newLines.push('');
     newLines.push(weaponComment);
+    
+    for (const roll of existingRolls) {
+      newLines.push(roll);
+    }
+    
     if (note && note.type === 'block') {
       newLines.push(`//notes:${note.text}`);
     }
@@ -422,6 +441,10 @@ async function main() {
   console.log(`${colorize('✓', 'green')} File selezionato: ${colorize(path.basename(targetFile), 'bold')}\n`);
 
   const { hash: weaponHash, weapon } = await searchWeapon(manifest);
+  
+  const allWeaponHashes = Object.entries(manifest.weapons)
+    .filter(([h, w]) => w.name === weapon.name)
+    .map(([h]) => h);
 
   const perkIds = await selectPerks(manifest, weapon);
 
@@ -461,7 +484,7 @@ async function main() {
     }
   }
 
-  const newContent = appendRoll(txtContent, weaponHash, perkIds, note, weapon.name, weapon.type);
+  const newContent = appendRoll(txtContent, weaponHash, perkIds, note, weapon.name, weapon.type, allWeaponHashes);
 
   fs.writeFileSync(outputFile, newContent);
 
