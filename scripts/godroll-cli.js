@@ -341,10 +341,32 @@ async function searchWeapon(manifest) {
 async function selectPerks(manifest, weapon) {
   const perks = [];
 
-  const randomizableColumns = (weapon.columns || []).filter(col => col.length > 1);
+  const allColumns = (weapon.columns || []).filter(col => col.length > 1);
   
-  // Limita a 5 colonne massimo (canna, caricatore, perk1, perk2, trait)
-  const maxColumns = Math.min(randomizableColumns.length, 5);
+  // Filtra le colonne per escludere quelle con solo shader/ricordi
+  const validColumns = allColumns.filter(col => {
+    // Conta quanti perk sono shader/ricordi
+    let invalidCount = 0;
+    for (const perkHash of col) {
+      const perk = manifest.perks[perkHash];
+      if (!perk) continue;
+      const name = perk.name;
+      if (name.startsWith('Ricordo ') || 
+          name.startsWith('Shader ') ||
+          name === 'Pianura dorata' ||
+          name === 'Isola azzurra' ||
+          name === 'Palude d\'ombra' ||
+          name === 'Montagna cremisi' ||
+          name === 'Foresta verdeggiante') {
+        invalidCount++;
+      }
+    }
+    // Se più della metà dei perk sono invalidi, escludi la colonna
+    return invalidCount < col.length / 2;
+  });
+  
+  // Limita a 5 colonne massimo
+  const maxColumns = Math.min(validColumns.length, 5);
 
   if (maxColumns === 0) {
     console.log(`\n${colorize('⚠', 'yellow')} Nessuna colonna randomizzabile trovata per quest'arma.`);
@@ -368,7 +390,7 @@ async function selectPerks(manifest, weapon) {
       continue;
     }
 
-    const columnPerkHashes = randomizableColumns[col] || [];
+    const columnPerkHashes = validColumns[col] || [];
 
     if (columnPerkHashes.length === 0) {
       console.log('Nessun perk disponibile per questa colonna.');
@@ -569,7 +591,6 @@ function appendRoll(txtContent, weaponHash, perkIds, note, weaponName, weaponTyp
     
     const trimmedContent = newLines.join('\n').trimEnd();
     newLines = trimmedContent.split('\n');
-    newLines.push('');
     newLines.push('');
     newLines.push(weaponComment);
     
