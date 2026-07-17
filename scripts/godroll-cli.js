@@ -207,6 +207,8 @@ async function createNewWishlist() {
 
   const userDir = path.join(godrollDir, userName.trim());
   if (fs.existsSync(userDir)) {
+    clearScreen();
+    console.log(`${colorize('--- Crea Nuova Wishlist ---', 'cyan', 'bold')}\n`);
     console.log(`${colorize('⚠', 'yellow')} La wishlist "${userName}" esiste già.`);
     const confirm = await ask('Vuoi comunque continuare? (s/n): ');
     if (confirm.toLowerCase() !== 's') {
@@ -214,10 +216,13 @@ async function createNewWishlist() {
     }
   } else {
     fs.mkdirSync(userDir, { recursive: true });
-    console.log(`${colorize('✓', 'green')} Cartella creata: godroll/${userName.trim()}`);
   }
 
-  const fileName = await ask(`\n${colorize('Nome del file', 'cyan')} (senza estensione .txt): `);
+  clearScreen();
+  console.log(`${colorize('--- Crea Nuova Wishlist ---', 'cyan', 'bold')}\n`);
+  console.log(`${colorize('✓', 'green')} Cartella creata: godroll/${userName.trim()}\n`);
+
+  const fileName = await ask(`${colorize('Nome del file', 'cyan')} (senza estensione .txt): `);
   if (!fileName.trim()) {
     console.log(`${colorize('✗', 'red')} Nome non valido.`);
     process.exit(1);
@@ -225,7 +230,17 @@ async function createNewWishlist() {
 
   const filePath = path.join(userDir, `${fileName.trim()}.txt`);
 
-  const title = await ask(`\n${colorize('Titolo della lista', 'cyan')} (es. "Godroll — Lista Desideri D2"): `);
+  clearScreen();
+  console.log(`${colorize('--- Crea Nuova Wishlist ---', 'cyan', 'bold')}\n`);
+  console.log(`${colorize('✓', 'green')} Cartella creata: godroll/${userName.trim()}\n`);
+
+  const title = await ask(`${colorize('Titolo della lista', 'cyan')} (es. "Godroll — Lista Desideri D2"): `);
+  
+  clearScreen();
+  console.log(`${colorize('--- Crea Nuova Wishlist ---', 'cyan', 'bold')}\n`);
+  console.log(`${colorize('✓', 'green')} Cartella creata: godroll/${userName.trim()}\n`);
+  console.log(`${colorize('✓', 'green')} File creato: godroll/${userName.trim()}/${fileName.trim()}.txt\n`);
+
   const description = await ask(`${colorize('Descrizione', 'cyan')} (es. "Wishlist personale e del clan"): `);
 
   let content = '';
@@ -237,11 +252,21 @@ async function createNewWishlist() {
   }
 
   fs.writeFileSync(filePath, content);
-  console.log(`\n${colorize('✓', 'green')} File creato: godroll/${userName.trim()}/${fileName.trim()}.txt`);
+  
+  clearScreen();
+  console.log(`${colorize('--- Crea Nuova Wishlist ---', 'cyan', 'bold')}\n`);
+  console.log(`${colorize('✓', 'green')} Cartella creata: godroll/${userName.trim()}`);
+  console.log(`${colorize('✓', 'green')} File creato: godroll/${userName.trim()}/${fileName.trim()}.txt`);
+  if (title.trim()) {
+    console.log(`${colorize('✓', 'green')} Titolo: ${title.trim()}`);
+  }
+  if (description.trim()) {
+    console.log(`${colorize('✓', 'green')} Descrizione: ${description.trim()}`);
+  }
 
   const addRoll = await ask(`\n${colorize('Vuoi aggiungere il primo roll?', 'cyan')} (s/n): `);
   if (addRoll.toLowerCase() !== 's') {
-    console.log('Wishlist creata con successo!');
+    console.log(`\n${colorize('✓', 'green')} Wishlist creata con successo!`);
     process.exit(0);
   }
 
