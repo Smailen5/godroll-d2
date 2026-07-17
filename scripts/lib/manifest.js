@@ -94,14 +94,34 @@ function buildSlimCache(version, items, plugSetDefs) {
 
     const plugSets = new Set();
     const perks = new Set();
+    const columns = [];
+    const columnPlugSets = [];
     for (let i = 0; i < entries.length; i++) {
       if (perkIndexes && !perkIndexes.has(i)) continue;
       const socket = entries[i];
-      if (socket.randomizedPlugSetHash) plugSets.add(socket.randomizedPlugSetHash);
-      if (socket.reusablePlugSetHash) plugSets.add(socket.reusablePlugSetHash);
-      if (socket.singleInitialItemHash) perks.add(socket.singleInitialItemHash);
+      const columnPerks = [];
+      const columnPlugSetHashes = [];
+      if (socket.randomizedPlugSetHash) {
+        plugSets.add(socket.randomizedPlugSetHash);
+        columnPlugSetHashes.push(socket.randomizedPlugSetHash);
+      }
+      if (socket.reusablePlugSetHash) {
+        plugSets.add(socket.reusablePlugSetHash);
+        columnPlugSetHashes.push(socket.reusablePlugSetHash);
+      }
+      if (socket.singleInitialItemHash) {
+        perks.add(socket.singleInitialItemHash);
+        columnPerks.push(socket.singleInitialItemHash);
+      }
       for (const plug of socket.reusablePlugItems || []) {
-        if (plug.plugItemHash) perks.add(plug.plugItemHash);
+        if (plug.plugItemHash) {
+          perks.add(plug.plugItemHash);
+          columnPerks.push(plug.plugItemHash);
+        }
+      }
+      if (columnPerks.length > 0 || columnPlugSetHashes.length > 0) {
+        columns.push(columnPerks);
+        columnPlugSets.push(columnPlugSetHashes);
       }
     }
 
@@ -112,6 +132,8 @@ function buildSlimCache(version, items, plugSetDefs) {
       type: item.itemTypeDisplayName || '',
       plugSets: [...plugSets],
       perks: [...perks],
+      columns,
+      columnPlugSets,
     };
   }
 
@@ -128,6 +150,22 @@ function buildSlimCache(version, items, plugSetDefs) {
       }
     }
     plugSets[psHash] = [...perkHashes];
+  }
+
+  for (const [hash, weapon] of Object.entries(weapons)) {
+    const expandedColumns = [];
+    for (let i = 0; i < weapon.columns.length; i++) {
+      const columnPerks = new Set(weapon.columns[i]);
+      const colPlugSets = weapon.columnPlugSets[i] || [];
+      for (const psHash of colPlugSets) {
+        for (const perkHash of plugSets[psHash] || []) {
+          columnPerks.add(perkHash);
+        }
+      }
+      expandedColumns.push([...columnPerks]);
+    }
+    weapon.columns = expandedColumns;
+    delete weapon.columnPlugSets;
   }
 
   const perks = {};
