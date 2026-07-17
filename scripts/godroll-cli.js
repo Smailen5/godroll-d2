@@ -152,12 +152,34 @@ function suggest(name, candidateNames) {
   return bestDistant !== null && bestDistantScore <= threshold ? bestDistant : null;
 }
 
-async function selectTxtFile() {
-  const godrollDir = path.join(__dirname, '..', 'godroll', 'smailen');
-  const txtFiles = fs.readdirSync(godrollDir).filter(f => f.endsWith('.txt'));
+async function selectUser() {
+  const godrollDir = path.join(__dirname, '..', 'godroll');
+  const users = fs.readdirSync(godrollDir).filter(f => {
+    const fullPath = path.join(godrollDir, f);
+    return fs.statSync(fullPath).isDirectory();
+  });
+
+  if (users.length === 0) {
+    console.log(`${colorize('✗', 'red')} Nessuna wishlist trovata in godroll/`);
+    process.exit(1);
+  }
+
+  const selected = await selectFromList(users, 'Seleziona la tua wishlist');
+
+  if (selected === null) {
+    console.log('Selezione annullata.');
+    process.exit(0);
+  }
+
+  return users[selected];
+}
+
+async function selectTxtFile(user) {
+  const userDir = path.join(__dirname, '..', 'godroll', user);
+  const txtFiles = fs.readdirSync(userDir).filter(f => f.endsWith('.txt'));
 
   if (txtFiles.length === 0) {
-    console.log(`${colorize('✗', 'red')} Nessun file .txt trovato in godroll/smailen/`);
+    console.log(`${colorize('✗', 'red')} Nessun file .txt trovato in godroll/${user}/`);
     process.exit(1);
   }
 
@@ -168,7 +190,62 @@ async function selectTxtFile() {
     process.exit(0);
   }
 
-  return path.join(godrollDir, txtFiles[selected]);
+  return path.join(userDir, txtFiles[selected]);
+}
+
+async function createNewWishlist() {
+  clearScreen();
+  console.log(`${colorize('--- Crea Nuova Wishlist ---', 'cyan', 'bold')}\n`);
+
+  const godrollDir = path.join(__dirname, '..', 'godroll');
+
+  const userName = await ask(`${colorize('Nome della wishlist', 'cyan')} (es. il tuo nome): `);
+  if (!userName.trim()) {
+    console.log(`${colorize('✗', 'red')} Nome non valido.`);
+    process.exit(1);
+  }
+
+  const userDir = path.join(godrollDir, userName.trim());
+  if (fs.existsSync(userDir)) {
+    console.log(`${colorize('⚠', 'yellow')} La wishlist "${userName}" esiste già.`);
+    const confirm = await ask('Vuoi comunque continuare? (s/n): ');
+    if (confirm.toLowerCase() !== 's') {
+      process.exit(0);
+    }
+  } else {
+    fs.mkdirSync(userDir, { recursive: true });
+    console.log(`${colorize('✓', 'green')} Cartella creata: godroll/${userName.trim()}`);
+  }
+
+  const fileName = await ask(`\n${colorize('Nome del file', 'cyan')} (senza estensione .txt): `);
+  if (!fileName.trim()) {
+    console.log(`${colorize('✗', 'red')} Nome non valido.`);
+    process.exit(1);
+  }
+
+  const filePath = path.join(userDir, `${fileName.trim()}.txt`);
+
+  const title = await ask(`\n${colorize('Titolo della lista', 'cyan')} (es. "Godroll — Lista Desideri D2"): `);
+  const description = await ask(`${colorize('Descrizione', 'cyan')} (es. "Wishlist personale e del clan"): `);
+
+  let content = '';
+  if (title.trim()) {
+    content += `title:${title.trim()}\n`;
+  }
+  if (description.trim()) {
+    content += `description:${description.trim()}\n`;
+  }
+
+  fs.writeFileSync(filePath, content);
+  console.log(`\n${colorize('✓', 'green')} File creato: godroll/${userName.trim()}/${fileName.trim()}.txt`);
+
+  const addRoll = await ask(`\n${colorize('Vuoi aggiungere il primo roll?', 'cyan')} (s/n): `);
+  if (addRoll.toLowerCase() !== 's') {
+    console.log('Wishlist creata con successo!');
+    process.exit(0);
+  }
+
+  return filePath;
 }
 
 async function searchWeapon(manifest) {
@@ -417,16 +494,30 @@ async function main() {
   clearScreen();
   console.log(`${colorize('=== Godroll CLI ===', 'cyan', 'bold')}\n`);
 
-  const menuOptions = ['Aggiungi un nuovo roll', 'Esci'];
+  const menuOptions = ['Modifica wishlist esistente', 'Crea nuova wishlist', 'Esci'];
   const selected = await selectFromList(menuOptions, 'Cosa vuoi fare');
 
-  if (selected === null || selected === 1) {
+  if (selected === null || selected === 2) {
     console.log('Arrivederci!');
     process.exit(0);
   }
 
-  clearScreen();
-  console.log(`${colorize('--- Aggiungi Roll ---', 'cyan', 'bold')}\n`);
+  let targetFile;
+
+  if (selected === 0) {
+    clearScreen();
+    console.log(`${colorize('--- Modifica Wishlist ---', 'cyan', 'bold')}\n`);
+
+    const user = await selectUser();
+    console.log(`\n${colorize('✓', 'green')} Wishlist selezionata: ${colorize(user, 'bold')}`);
+
+    targetFile = await selectTxtFile(user);
+    clearScreen();
+    console.log(`${colorize('✓', 'green')} File selezionato: ${colorize(path.basename(targetFile), 'bold')}\n`);
+  } else if (selected === 1) {
+    targetFile = await createNewWishlist();
+    clearScreen();
+  }
 
   let manifest;
   try {
@@ -435,10 +526,6 @@ async function main() {
     console.log(`${colorize('✗', 'red')} Errore caricamento manifest: ${err.message}`);
     process.exit(1);
   }
-
-  const targetFile = await selectTxtFile();
-  clearScreen();
-  console.log(`${colorize('✓', 'green')} File selezionato: ${colorize(path.basename(targetFile), 'bold')}\n`);
 
   const { hash: weaponHash, weapon } = await searchWeapon(manifest);
   
