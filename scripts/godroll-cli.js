@@ -290,7 +290,17 @@ async function searchWeapon(manifest) {
     );
 
     if (matches.length > 0) {
-      const [hash, weapon] = matches[0];
+      // Seleziona la versione con più colonne randomizzabili (quella più recente)
+      let bestMatch = matches[0];
+      let bestRandomizable = 0;
+      for (const [hash, weapon] of matches) {
+        const randomizable = (weapon.columns || []).filter(col => col.length > 1).length;
+        if (randomizable > bestRandomizable) {
+          bestRandomizable = randomizable;
+          bestMatch = [hash, weapon];
+        }
+      }
+      const [hash, weapon] = bestMatch;
       console.log(`\n${colorize('✓', 'green')} Arma trovata: ${colorize(weapon.name, 'bold')} (${weapon.type})`);
       return { hash, weapon };
     }
@@ -302,12 +312,20 @@ async function searchWeapon(manifest) {
       console.log(`\n${colorize('💡', 'yellow')} Forse intendevi ${colorize(suggestion + typeInfo, 'yellow', 'bold')}?`);
       const confirm = await ask(`Confermi? (s/n): `);
       if (confirm.toLowerCase() === 's') {
-        const match = Object.entries(manifest.weapons).find(([h, w]) => w.name === suggestion);
-        if (match) {
-          const [hash, weapon] = match;
-          console.log(`${colorize('✓', 'green')} Arma selezionata: ${colorize(weapon.name, 'bold')} (${weapon.type})`);
-          return { hash, weapon };
+        const allMatches = Object.entries(manifest.weapons).filter(([h, w]) => w.name === suggestion);
+        // Seleziona la versione con più colonne randomizzabili
+        let bestMatch = allMatches[0];
+        let bestRandomizable = 0;
+        for (const [hash, weapon] of allMatches) {
+          const randomizable = (weapon.columns || []).filter(col => col.length > 1).length;
+          if (randomizable > bestRandomizable) {
+            bestRandomizable = randomizable;
+            bestMatch = [hash, weapon];
+          }
         }
+        const [hash, weapon] = bestMatch;
+        console.log(`${colorize('✓', 'green')} Arma selezionata: ${colorize(weapon.name, 'bold')} (${weapon.type})`);
+        return { hash, weapon };
       }
     } else {
       console.log(`\n${colorize('✗', 'red')} Arma "${input}" non trovata.`);
