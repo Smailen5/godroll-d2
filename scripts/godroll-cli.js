@@ -129,15 +129,16 @@ function suggest(name, candidateNames) {
   let bestDistantScore = Infinity;
 
   for (const candidate of candidateNames) {
-    if (candidate.includes(lower) || lower.includes(candidate)) {
-      const score = Math.abs(candidate.length - lower.length);
+    const candidateLower = candidate.toLowerCase();
+    if (candidateLower.includes(lower) || lower.includes(candidateLower)) {
+      const score = Math.abs(candidateLower.length - lower.length);
       if (score < bestContainedScore) {
         bestContainedScore = score;
         bestContained = candidate;
       }
       continue;
     }
-    const distance = levenshtein(lower, candidate);
+    const distance = levenshtein(lower, candidateLower);
     if (distance < bestDistantScore) {
       bestDistantScore = distance;
       bestDistant = candidate;
