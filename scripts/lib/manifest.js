@@ -182,7 +182,10 @@ function buildSlimCache(version, items, plugSetDefs, seasonDefs) {
           }
         }
       }
-      expandedColumns.push([...columnPerks]);
+      // Filtra anche la colonna finale se ha troppi perk
+      if (columnPerks.size <= MAX_PERKS_PER_COLUMN) {
+        expandedColumns.push([...columnPerks]);
+      }
     }
     weapon.columns = expandedColumns;
     delete weapon.columnPlugSets;
