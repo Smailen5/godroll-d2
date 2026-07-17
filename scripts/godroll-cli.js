@@ -273,7 +273,7 @@ async function createNewWishlist() {
   return filePath;
 }
 
-async function searchWeapon(manifest) {
+async function searchWeaponName(manifest) {
   const weaponNames = Object.values(manifest.weapons).map(w => w.name);
 
   while (true) {
@@ -290,27 +290,7 @@ async function searchWeapon(manifest) {
     );
 
     if (matches.length > 0) {
-      // Se ci sono più versioni, fai scegliere all'utente
-      if (matches.length > 1) {
-        console.log(`\n${colorize('ℹ', 'cyan')} Trovate ${matches.length} versioni dell'arma:`);
-        const versionOptions = matches.map(([hash, weapon]) => {
-          const season = weapon.season || 'Stagione sconosciuta';
-          const randomizable = (weapon.columns || []).filter(col => col.length > 1).length;
-          return `${season} (${randomizable} colonne)`;
-        });
-        const selected = await selectFromList(versionOptions, 'Seleziona la versione');
-        if (selected === null) {
-          console.log('Selezione annullata.');
-          process.exit(0);
-        }
-        const [hash, weapon] = matches[selected];
-        console.log(`\n${colorize('✓', 'green')} Arma selezionata: ${colorize(weapon.name, 'bold')} (${weapon.type})`);
-        return { hash, weapon };
-      } else {
-        const [hash, weapon] = matches[0];
-        console.log(`\n${colorize('✓', 'green')} Arma trovata: ${colorize(weapon.name, 'bold')} (${weapon.type})`);
-        return { hash, weapon };
-      }
+      return { weaponName: matches[0][1].name, matches };
     }
 
     const suggestion = suggest(input, weaponNames);
@@ -321,31 +301,41 @@ async function searchWeapon(manifest) {
       const confirm = await ask(`Confermi? (s/n): `);
       if (confirm.toLowerCase() === 's') {
         const allMatches = Object.entries(manifest.weapons).filter(([h, w]) => w.name === suggestion);
-        if (allMatches.length > 1) {
-          console.log(`\n${colorize('ℹ', 'cyan')} Trovate ${allMatches.length} versioni dell'arma:`);
-          const versionOptions = allMatches.map(([hash, weapon]) => {
-            const season = weapon.season || 'Stagione sconosciuta';
-            const randomizable = (weapon.columns || []).filter(col => col.length > 1).length;
-            return `${season} (${randomizable} colonne)`;
-          });
-          const selected = await selectFromList(versionOptions, 'Seleziona la versione');
-          if (selected === null) {
-            console.log('Selezione annullata.');
-            process.exit(0);
-          }
-          const [hash, weapon] = allMatches[selected];
-          console.log(`${colorize('✓', 'green')} Arma selezionata: ${colorize(weapon.name, 'bold')} (${weapon.type})`);
-          return { hash, weapon };
-        } else {
-          const [hash, weapon] = allMatches[0];
-          console.log(`${colorize('✓', 'green')} Arma selezionata: ${colorize(weapon.name, 'bold')} (${weapon.type})`);
-          return { hash, weapon };
-        }
+        return { weaponName: suggestion, matches: allMatches };
       }
     } else {
       console.log(`\n${colorize('✗', 'red')} Arma "${input}" non trovata.`);
     }
   }
+}
+
+async function selectWeaponVersion(matches) {
+  if (matches.length === 1) {
+    const [hash, weapon] = matches[0];
+    console.log(`\n${colorize('✓', 'green')} Arma trovata: ${colorize(weapon.name, 'bold')} (${weapon.type})`);
+    return { hash, weapon };
+  }
+
+  console.log(`\n${colorize('ℹ', 'cyan')} Trovate ${matches.length} versioni dell'arma:`);
+  const versionOptions = matches.map(([hash, weapon]) => {
+    const season = weapon.season || 'Stagione sconosciuta';
+    const randomizable = (weapon.columns || []).filter(col => col.length > 1).length;
+    return `${season} (${randomizable} colonne)`;
+  });
+  const selected = await selectFromList(versionOptions, 'Seleziona la versione');
+  if (selected === null) {
+    console.log('Selezione annullata.');
+    process.exit(0);
+  }
+  const [hash, weapon] = matches[selected];
+  console.log(`\n${colorize('✓', 'green')} Arma selezionata: ${colorize(weapon.name, 'bold')} (${weapon.type})`);
+  return { hash, weapon };
+}
+
+async function searchWeapon(manifest) {
+  const { weaponName, matches } = await searchWeaponName(manifest);
+  const { hash, weapon } = await selectWeaponVersion(matches);
+  return { hash, weapon, weaponName, matches };
 }
 
 async function selectPerks(manifest, weapon) {
@@ -428,9 +418,9 @@ async function selectPerks(manifest, weapon) {
     // Se ha selezionato "Torna indietro"
     if (selected === listOptions.length - 1) {
       if (col === 0) {
-        // Se siamo alla prima colonna, torna alla selezione arma
-        console.log(`\n${colorize('ℹ', 'cyan')} Tornando alla selezione arma...`);
-        return null; // Indica che dobbiamo tornare indietro
+        // Se siamo alla prima colonna, torna alla selezione versione
+        console.log(`\n${colorize('ℹ', 'cyan')} Tornando alla selezione versione...`);
+        return { action: 'back' }; // Indica che dobbiamo tornare alla selezione versione
       } else {
         // Altrimenti rimuovi l'ultimo perk e decrementa col
         perks.pop();
@@ -629,6 +619,8 @@ async function main() {
   let currentWeapon = null;
   let currentWeaponHash = null;
   let currentAllWeaponHashes = null;
+  let currentWeaponName = null;
+  let currentMatches = null;
 
   while (true) {
     let weapon, weaponHash, allWeaponHashes;
@@ -657,7 +649,17 @@ async function main() {
         allWeaponHashes = Object.entries(manifest.weapons)
           .filter(([h, w]) => w.name === weapon.name)
           .map(([h]) => h);
+        currentWeaponName = result.weaponName;
+        currentMatches = result.matches;
       }
+    } else if (currentWeaponName && currentMatches) {
+      // Torna alla selezione versione
+      const { hash, weapon: selectedWeapon } = await selectWeaponVersion(currentMatches);
+      weapon = selectedWeapon;
+      weaponHash = hash;
+      allWeaponHashes = Object.entries(manifest.weapons)
+        .filter(([h, w]) => w.name === weapon.name)
+        .map(([h]) => h);
     } else {
       const result = await searchWeapon(manifest);
       weapon = result.weapon;
@@ -665,15 +667,18 @@ async function main() {
       allWeaponHashes = Object.entries(manifest.weapons)
         .filter(([h, w]) => w.name === weapon.name)
         .map(([h]) => h);
+      currentWeaponName = result.weaponName;
+      currentMatches = result.matches;
     }
 
     const perkIds = await selectPerks(manifest, weapon);
 
-    // Se l'utente ha scelto di tornare indietro
-    if (perkIds === null) {
+    // Se l'utente ha scelto di tornare indietro alla selezione versione
+    if (perkIds && perkIds.action === 'back') {
       currentWeapon = null;
       currentWeaponHash = null;
       currentAllWeaponHashes = null;
+      // Mantieni currentWeaponName e currentMatches per tornare alla selezione versione
       continue;
     }
 
@@ -704,6 +709,8 @@ async function main() {
         currentWeapon = weapon;
         currentWeaponHash = weaponHash;
         currentAllWeaponHashes = allWeaponHashes;
+        currentWeaponName = weapon.name;
+        currentMatches = Object.entries(manifest.weapons).filter(([h, w]) => w.name === weapon.name);
         continue;
       }
     }
@@ -716,6 +723,8 @@ async function main() {
     currentWeapon = weapon;
     currentWeaponHash = weaponHash;
     currentAllWeaponHashes = allWeaponHashes;
+    currentWeaponName = weapon.name;
+    currentMatches = Object.entries(manifest.weapons).filter(([h, w]) => w.name === weapon.name);
   }
 
   console.log(`\n${colorize('✓', 'green')} Operazione completata!`);
