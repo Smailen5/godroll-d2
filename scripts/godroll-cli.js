@@ -476,6 +476,14 @@ function appendRoll(txtContent, weaponHash, perkIds, note, weaponName, weaponTyp
   if (insertIndex !== -1) {
     newLines = [...lines];
     let insertPos = sectionEndIndex;
+    
+    for (let j = sectionEndIndex - 1; j > insertIndex; j--) {
+      if (lines[j].trim() !== '') {
+        insertPos = j + 1;
+        break;
+      }
+    }
+    
     if (note && note.type === 'block') {
       newLines.splice(insertPos, 0, `//notes:${note.text}`, dimLine);
     } else {
@@ -499,6 +507,7 @@ function appendRoll(txtContent, weaponHash, perkIds, note, weaponName, weaponTyp
     
     const trimmedContent = newLines.join('\n').trimEnd();
     newLines = trimmedContent.split('\n');
+    newLines.push('');
     newLines.push('');
     newLines.push(weaponComment);
     
