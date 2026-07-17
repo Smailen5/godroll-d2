@@ -24,6 +24,10 @@ function colorize(text, ...styles) {
   return styles.map(s => colors[s]).join('') + text + colors.reset;
 }
 
+function clearScreen() {
+  process.stdout.write('\x1b[2J\x1b[H');
+}
+
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
@@ -31,6 +35,62 @@ const rl = readline.createInterface({
 
 function ask(question) {
   return new Promise(resolve => rl.question(question, resolve));
+}
+
+async function selectFromList(options, prompt = 'Seleziona') {
+  return new Promise((resolve) => {
+    let selectedIndex = 0;
+    const stdin = process.stdin;
+
+    stdin.setRawMode(true);
+    stdin.resume();
+    stdin.setEncoding('utf8');
+
+    function render() {
+      process.stdout.write(`\x1b[${options.length + 2}A\x1b[J`);
+      console.log(`${colorize(prompt, 'cyan')}:`);
+      options.forEach((opt, i) => {
+        const marker = i === selectedIndex ? colorize('▶', 'cyan') : ' ';
+        const text = i === selectedIndex ? colorize(opt, 'bold') : opt;
+        console.log(`  ${marker} ${text}`);
+      });
+      console.log(`\n${colorize('↑↓', 'dim')} naviga  ${colorize('↵', 'dim')} conferma  ${colorize('q', 'dim')} annulla`);
+    }
+
+    console.log('');
+    render();
+
+    const onData = (key) => {
+      if (key === '\u0003' || key === 'q') {
+        cleanup();
+        resolve(null);
+        return;
+      }
+
+      if (key === '\r' || key === '\n') {
+        cleanup();
+        resolve(selectedIndex);
+        return;
+      }
+
+      if (key === '\x1b[A') {
+        selectedIndex = (selectedIndex - 1 + options.length) % options.length;
+        render();
+      } else if (key === '\x1b[B') {
+        selectedIndex = (selectedIndex + 1) % options.length;
+        render();
+      }
+    };
+
+    function cleanup() {
+      stdin.setRawMode(false);
+      stdin.pause();
+      stdin.removeListener('data', onData);
+      process.stdout.write('\n');
+    }
+
+    stdin.on('data', onData);
+  });
 }
 
 function levenshtein(a, b) {
@@ -89,18 +149,14 @@ async function selectTxtFile() {
     process.exit(1);
   }
 
-  console.log(`\n${colorize('Seleziona il file .txt target:', 'cyan')}`);
-  txtFiles.forEach((f, i) => console.log(`  ${colorize(String(i + 1), 'yellow')}. ${f}`));
+  const selected = await selectFromList(txtFiles, 'Seleziona il file .txt target');
 
-  const choice = await ask(`\n${colorize('Numero', 'cyan')} (o invia per annullare): `);
-  const idx = parseInt(choice) - 1;
-
-  if (isNaN(idx) || idx < 0 || idx >= txtFiles.length) {
+  if (selected === null) {
     console.log('Selezione annullata.');
     process.exit(0);
   }
 
-  return path.join(godrollDir, txtFiles[idx]);
+  return path.join(godrollDir, txtFiles[selected]);
 }
 
 async function searchWeapon(manifest) {
@@ -160,7 +216,8 @@ async function selectPerks(manifest, weapon) {
   }
 
   for (let col = 0; col < 5; col++) {
-    console.log(`\n${colorize(`--- Colonna ${col + 1} ---`, 'cyan', 'bold')}`);
+    clearScreen();
+    console.log(`${colorize(`--- Colonna ${col + 1} di 5 ---`, 'cyan', 'bold')}\n`);
 
     const columnPerkHashes = randomizableColumns[col] || [];
 
@@ -192,29 +249,26 @@ async function selectPerks(manifest, weapon) {
 
     perkOptions.sort((a, b) => a.name.localeCompare(b.name));
 
-    console.log('\nPerk disponibili:');
-    perkOptions.forEach((p, i) => console.log(`  ${i + 1}. ${p.name}`));
-    console.log(`  ${colorize('0. Qualsiasi (nessun perk specifico)', 'yellow', 'bold')}`);
+    const listOptions = perkOptions.map(p => p.name);
+    listOptions.push(colorize('Qualsiasi (nessun perk specifico)', 'yellow'));
 
-    while (true) {
-      const choice = await ask('\nNumero del perk (o 0 per "qualsiasi"): ');
-      const idx = parseInt(choice);
+    const selected = await selectFromList(listOptions, 'Perk disponibili');
 
-      if (idx === 0) {
-        perks.push(WILDCARD_PERK_ID);
-        console.log(`${colorize('✓', 'green')} Selezionato: ${colorize('Qualsiasi', 'yellow', 'bold')}`);
-        break;
-      }
-
-      if (idx > 0 && idx <= perkOptions.length) {
-        const selected = perkOptions[idx - 1];
-        perks.push(selected.hash);
-        console.log(`${colorize('✓', 'green')} Selezionato: ${selected.name}`);
-        break;
-      }
-
-      console.log(`${colorize('✗', 'red')} Selezione non valida. Riprova.`);
+    if (selected === null) {
+      console.log('Selezione annullata.');
+      process.exit(0);
     }
+
+    if (selected === listOptions.length - 1) {
+      perks.push(WILDCARD_PERK_ID);
+      console.log(`${colorize('✓', 'green')} Selezionato: ${colorize('Qualsiasi', 'yellow', 'bold')}`);
+    } else {
+      const selPerk = perkOptions[selected];
+      perks.push(selPerk.hash);
+      console.log(`${colorize('✓', 'green')} Selezionato: ${selPerk.name}`);
+    }
+
+    await ask(`${colorize('Premi invio per continuare...', 'dim')}`);
   }
 
   return perks;
@@ -290,24 +344,19 @@ function appendRoll(txtContent, weaponHash, perkIds, note) {
 }
 
 async function main() {
-  console.log(`\n${colorize('=== Godroll CLI ===', 'cyan', 'bold')}\n`);
-  console.log(`${colorize('Cosa vuoi fare?', 'cyan')}`);
-  console.log(`  ${colorize('1', 'yellow')}. Aggiungi un nuovo roll`);
-  console.log(`  ${colorize('q', 'yellow')}. Esci\n`);
+  clearScreen();
+  console.log(`${colorize('=== Godroll CLI ===', 'cyan', 'bold')}\n`);
 
-  const choice = await ask(`${colorize('Scelta', 'cyan')}: `);
+  const menuOptions = ['Aggiungi un nuovo roll', 'Esci'];
+  const selected = await selectFromList(menuOptions, 'Cosa vuoi fare');
 
-  if (choice.toLowerCase() === 'q' || choice.trim() === '') {
+  if (selected === null || selected === 1) {
     console.log('Arrivederci!');
     process.exit(0);
   }
 
-  if (choice !== '1') {
-    console.log(`${colorize('✗', 'red')} Scelta non valida.`);
-    process.exit(1);
-  }
-
-  console.log(`\n${colorize('--- Aggiungi Roll ---', 'cyan', 'bold')}\n`);
+  clearScreen();
+  console.log(`${colorize('--- Aggiungi Roll ---', 'cyan', 'bold')}\n`);
 
   let manifest;
   try {
@@ -318,13 +367,15 @@ async function main() {
   }
 
   const targetFile = await selectTxtFile();
-  console.log(`\n${colorize('✓', 'green')} File selezionato: ${colorize(path.basename(targetFile), 'bold')}`);
+  clearScreen();
+  console.log(`${colorize('✓', 'green')} File selezionato: ${colorize(path.basename(targetFile), 'bold')}\n`);
 
   const { hash: weaponHash, weapon } = await searchWeapon(manifest);
 
   const perkIds = await selectPerks(manifest, weapon);
 
-  console.log(`\n${colorize('=== Recap ===', 'cyan', 'bold')}`);
+  clearScreen();
+  console.log(`${colorize('=== Recap ===', 'cyan', 'bold')}`);
   console.log(`Arma: ${colorize(weapon.name, 'bold')}`);
   console.log(`Perk:`);
   perkIds.forEach((perkHash, i) => {
