@@ -25,7 +25,7 @@ function colorize(text, ...styles) {
 }
 
 function clearScreen() {
-  process.stdout.write('\x1b[2J\x1b[H');
+  process.stdout.write('\x1b[2J\x1b[3J\x1b[H');
 }
 
 const rl = readline.createInterface({
@@ -97,8 +97,7 @@ async function selectFromList(options, prompt = 'Seleziona') {
     function cleanup() {
       stdin.setRawMode(false);
       stdin.removeListener('data', onData);
-      // Pulisci completamente lo schermo
-      process.stdout.write('\x1b[2J\x1b[H');
+      process.stdout.write('\x1b[2J\x1b[3J\x1b[H');
     }
 
     stdin.on('data', onData);
