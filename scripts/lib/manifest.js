@@ -115,6 +115,7 @@ function buildSlimCache(version, items, plugSetDefs) {
       perks: [...perks],
       columns,
       columnPlugSets,
+      displaySource: item.displaySource || '',
     };
   }
 
