@@ -335,7 +335,7 @@ function checkDuplicates(txtContent, weaponHash, perkIds) {
   return { duplicate: false };
 }
 
-function appendRoll(txtContent, weaponHash, perkIds, note) {
+function appendRoll(txtContent, weaponHash, perkIds, note, weaponName, weaponType) {
   const paddedPerkIds = [...perkIds];
   while (paddedPerkIds.length < 5) {
     paddedPerkIds.push(WILDCARD_PERK_ID);
@@ -348,6 +348,13 @@ function appendRoll(txtContent, weaponHash, perkIds, note) {
   }
 
   let newContent = txtContent.trimEnd();
+
+  const weaponComment = `// ${weaponName} (${weaponType})`;
+  const hasWeaponComment = txtContent.includes(weaponComment);
+
+  if (!hasWeaponComment) {
+    newContent += `\n\n${weaponComment}`;
+  }
 
   if (note && note.type === 'block') {
     newContent += `\n//notes:${note.text}`;
@@ -425,7 +432,7 @@ async function main() {
     }
   }
 
-  const newContent = appendRoll(txtContent, weaponHash, perkIds, note);
+  const newContent = appendRoll(txtContent, weaponHash, perkIds, note, weapon.name, weapon.type);
 
   fs.writeFileSync(outputFile, newContent);
 
