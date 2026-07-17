@@ -13,10 +13,6 @@ const LOCALE = 'it';
 
 const ITEM_TYPE_WEAPON = 3;
 
-// Socket categories that hold wishlist-relevant perks.
-const SOCKET_CATEGORY_INTRINSIC = 3956125808;
-const SOCKET_CATEGORY_WEAPON_PERKS = 4241085061;
-
 const FETCH_RETRIES = 3;
 
 async function fetchJson(url) {
@@ -78,26 +74,11 @@ function buildSlimCache(version, items, plugSetDefs) {
 
     const entries = item.sockets?.socketEntries || [];
 
-    // Restrict to intrinsic + weapon perk sockets (skips shaders, mods,
-    // mementos...). Falls back to every socket if categories are missing.
-    let perkIndexes = null;
-    const categories = item.sockets?.socketCategories || [];
-    for (const category of categories) {
-      if (
-        category.socketCategoryHash === SOCKET_CATEGORY_INTRINSIC ||
-        category.socketCategoryHash === SOCKET_CATEGORY_WEAPON_PERKS
-      ) {
-        if (!perkIndexes) perkIndexes = new Set();
-        for (const index of category.socketIndexes) perkIndexes.add(index);
-      }
-    }
-
     const plugSets = new Set();
     const perks = new Set();
     const columns = [];
     const columnPlugSets = [];
     for (let i = 0; i < entries.length; i++) {
-      if (perkIndexes && !perkIndexes.has(i)) continue;
       const socket = entries[i];
       const columnPerks = [];
       const columnPlugSetHashes = [];
@@ -152,14 +133,19 @@ function buildSlimCache(version, items, plugSetDefs) {
     plugSets[psHash] = [...perkHashes];
   }
 
+  // Filtra i plugSet troppo grandi (probabilmente shader/ornament)
+  const MAX_PERKS_PER_COLUMN = 50;
   for (const [hash, weapon] of Object.entries(weapons)) {
     const expandedColumns = [];
     for (let i = 0; i < weapon.columns.length; i++) {
       const columnPerks = new Set(weapon.columns[i]);
       const colPlugSets = weapon.columnPlugSets[i] || [];
       for (const psHash of colPlugSets) {
-        for (const perkHash of plugSets[psHash] || []) {
-          columnPerks.add(perkHash);
+        const plugSetPerks = plugSets[psHash] || [];
+        if (plugSetPerks.length <= MAX_PERKS_PER_COLUMN) {
+          for (const perkHash of plugSetPerks) {
+            columnPerks.add(perkHash);
+          }
         }
       }
       expandedColumns.push([...columnPerks]);
