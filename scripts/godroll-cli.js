@@ -347,22 +347,51 @@ function appendRoll(txtContent, weaponHash, perkIds, note, weaponName, weaponTyp
     dimLine += `#notes:${note.text}`;
   }
 
-  let newContent = txtContent.trimEnd();
-
+  const lines = txtContent.split('\n');
   const weaponComment = `// ${weaponName} (${weaponType})`;
-  const hasWeaponComment = txtContent.includes(weaponComment);
+  
+  let insertIndex = -1;
+  let sectionEndIndex = -1;
 
-  if (!hasWeaponComment) {
-    newContent += `\n\n${weaponComment}`;
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].trim() === weaponComment) {
+      insertIndex = i;
+      for (let j = i + 1; j < lines.length; j++) {
+        const line = lines[j].trim();
+        if (line.startsWith('// ') && !line.startsWith('//notes:')) {
+          sectionEndIndex = j;
+          break;
+        }
+      }
+      if (sectionEndIndex === -1) {
+        sectionEndIndex = lines.length;
+      }
+      break;
+    }
   }
 
-  if (note && note.type === 'block') {
-    newContent += `\n//notes:${note.text}`;
+  let newLines;
+  if (insertIndex !== -1) {
+    newLines = [...lines];
+    let insertPos = sectionEndIndex;
+    if (note && note.type === 'block') {
+      newLines.splice(insertPos, 0, `//notes:${note.text}`, dimLine);
+    } else {
+      newLines.splice(insertPos, 0, dimLine);
+    }
+  } else {
+    newLines = [...lines];
+    const trimmedContent = txtContent.trimEnd();
+    newLines = trimmedContent.split('\n');
+    newLines.push('');
+    newLines.push(weaponComment);
+    if (note && note.type === 'block') {
+      newLines.push(`//notes:${note.text}`);
+    }
+    newLines.push(dimLine);
   }
 
-  newContent += `\n${dimLine}\n`;
-
-  return newContent;
+  return newLines.join('\n') + '\n';
 }
 
 async function main() {
