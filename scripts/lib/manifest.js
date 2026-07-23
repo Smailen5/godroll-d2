@@ -13,10 +13,6 @@ const LOCALE = 'it';
 
 const ITEM_TYPE_WEAPON = 3;
 
-// Socket categories that hold wishlist-relevant perks.
-const SOCKET_CATEGORY_INTRINSIC = 3956125808;
-const SOCKET_CATEGORY_WEAPON_PERKS = 4241085061;
-
 const FETCH_RETRIES = 3;
 
 async function fetchJson(url) {
@@ -58,7 +54,7 @@ function cacheAgeHours() {
  * Shape:
  * {
  *   version:  manifest version string,
- *   weapons:  { <hash>: { name, type, plugSets: [<plugSetHash>, ...], perks: [<perkHash>, ...] } },
+ *   weapons:  { <hash>: { name, type, plugSets: [<plugSetHash>, ...], perks: [<perkHash>, ...], columns: [[perkHash, ...], ...], season: string } },
  *   perks:    { <hash>: { name, tier } },
  *   plugSets: { <plugSetHash>: [<perkHash>, ...] }
  * }
@@ -66,10 +62,35 @@ function cacheAgeHours() {
  * `perks` holds plug hashes wired directly on the socket (e.g. origin
  * traits use singleInitialItemHash/reusablePlugItems instead of plug sets).
  */
-function buildSlimCache(version, items, plugSetDefs) {
+function buildSlimCache(version, items, plugSetDefs, seasonDefs) {
   const weapons = {};
   const usedPlugSets = new Set();
   const directPerkHashes = new Set();
+
+  // Crea mappatura iconWatermark -> stagione
+  // I watermark delle armi non corrispondono direttamente alle icone delle stagioni
+  // Quindi creiamo una mappatura basata sui numeri di stagione
+  const seasonNumberToName = {};
+  for (const [seasonHash, season] of Object.entries(seasonDefs)) {
+    if (season.seasonNumber && season.displayProperties?.name) {
+      seasonNumberToName[season.seasonNumber] = season.displayProperties.name;
+    }
+  }
+  
+  // Mappatura hardcoded dei watermark noti alle stagioni
+  // Questi sono stati identificati manualmente
+  const watermarkToSeason = {
+    '/common/destiny2_content/icons/4f28dc0f39238fe25d298a894ea71389.png': 'Versione originale',
+    '/common/destiny2_content/icons/e78fd9419f99464816ac8f628bc3c4af.png': seasonNumberToName[13] || 'Stagione 13',
+    '/common/destiny2_content/icons/7b48b09fbb50634680168d5880b16bc9.png': seasonNumberToName[28] || 'Stagione 28',
+  };
+  
+  // Aggiungi anche le icone delle stagioni
+  for (const [seasonHash, season] of Object.entries(seasonDefs)) {
+    if (season.displayProperties?.icon) {
+      watermarkToSeason[season.displayProperties.icon] = season.displayProperties.name;
+    }
+  }
 
   for (const [hash, item] of Object.entries(items)) {
     if (item.itemType !== ITEM_TYPE_WEAPON) continue;
@@ -78,40 +99,56 @@ function buildSlimCache(version, items, plugSetDefs) {
 
     const entries = item.sockets?.socketEntries || [];
 
-    // Restrict to intrinsic + weapon perk sockets (skips shaders, mods,
-    // mementos...). Falls back to every socket if categories are missing.
-    let perkIndexes = null;
-    const categories = item.sockets?.socketCategories || [];
-    for (const category of categories) {
-      if (
-        category.socketCategoryHash === SOCKET_CATEGORY_INTRINSIC ||
-        category.socketCategoryHash === SOCKET_CATEGORY_WEAPON_PERKS
-      ) {
-        if (!perkIndexes) perkIndexes = new Set();
-        for (const index of category.socketIndexes) perkIndexes.add(index);
-      }
-    }
-
     const plugSets = new Set();
     const perks = new Set();
+    const columns = [];
+    const columnPlugSets = [];
     for (let i = 0; i < entries.length; i++) {
-      if (perkIndexes && !perkIndexes.has(i)) continue;
       const socket = entries[i];
-      if (socket.randomizedPlugSetHash) plugSets.add(socket.randomizedPlugSetHash);
-      if (socket.reusablePlugSetHash) plugSets.add(socket.reusablePlugSetHash);
-      if (socket.singleInitialItemHash) perks.add(socket.singleInitialItemHash);
+      const columnPerks = [];
+      const columnPlugSetHashes = [];
+      if (socket.randomizedPlugSetHash) {
+        plugSets.add(socket.randomizedPlugSetHash);
+        columnPlugSetHashes.push(socket.randomizedPlugSetHash);
+      }
+      if (socket.reusablePlugSetHash) {
+        plugSets.add(socket.reusablePlugSetHash);
+        columnPlugSetHashes.push(socket.reusablePlugSetHash);
+      }
+      if (socket.singleInitialItemHash) {
+        perks.add(socket.singleInitialItemHash);
+        columnPerks.push(socket.singleInitialItemHash);
+      }
       for (const plug of socket.reusablePlugItems || []) {
-        if (plug.plugItemHash) perks.add(plug.plugItemHash);
+        if (plug.plugItemHash) {
+          perks.add(plug.plugItemHash);
+          columnPerks.push(plug.plugItemHash);
+        }
+      }
+      if (columnPerks.length > 0 || columnPlugSetHashes.length > 0) {
+        columns.push(columnPerks);
+        columnPlugSets.push(columnPlugSetHashes);
       }
     }
 
     for (const ps of plugSets) usedPlugSets.add(ps);
     for (const p of perks) directPerkHashes.add(p);
+    
+    // Determina la stagione dall'iconWatermark
+    const watermark = item.iconWatermark || '';
+    const season = watermarkToSeason[watermark] || '';
+    
     weapons[hash] = {
       name,
       type: item.itemTypeDisplayName || '',
       plugSets: [...plugSets],
       perks: [...perks],
+      columns,
+      columnPlugSets,
+      displaySource: item.displaySource || '',
+      season,
+      iconWatermark: item.iconWatermark || '',
+      iconWatermarkShelved: item.iconWatermarkShelved || '',
     };
   }
 
@@ -128,6 +165,30 @@ function buildSlimCache(version, items, plugSetDefs) {
       }
     }
     plugSets[psHash] = [...perkHashes];
+  }
+
+  // Filtra i plugSet troppo grandi (probabilmente shader/ornament)
+  const MAX_PERKS_PER_COLUMN = 30;
+  for (const [hash, weapon] of Object.entries(weapons)) {
+    const expandedColumns = [];
+    for (let i = 0; i < weapon.columns.length; i++) {
+      const columnPerks = new Set(weapon.columns[i]);
+      const colPlugSets = weapon.columnPlugSets[i] || [];
+      for (const psHash of colPlugSets) {
+        const plugSetPerks = plugSets[psHash] || [];
+        if (plugSetPerks.length <= MAX_PERKS_PER_COLUMN) {
+          for (const perkHash of plugSetPerks) {
+            columnPerks.add(perkHash);
+          }
+        }
+      }
+      // Filtra anche la colonna finale se ha troppi perk
+      if (columnPerks.size <= MAX_PERKS_PER_COLUMN) {
+        expandedColumns.push([...columnPerks]);
+      }
+    }
+    weapon.columns = expandedColumns;
+    delete weapon.columnPlugSets;
   }
 
   const perks = {};
@@ -152,7 +213,8 @@ async function downloadAndBuild(manifestIndex) {
   }
   const itemsPath = defs.DestinyInventoryItemDefinition;
   const plugSetsPath = defs.DestinyPlugSetDefinition;
-  if (!itemsPath || !plugSetsPath) {
+  const seasonsPath = defs.DestinySeasonDefinition;
+  if (!itemsPath || !plugSetsPath || !seasonsPath) {
     throw new Error('Definizioni necessarie non trovate nel manifest.');
   }
 
@@ -160,9 +222,11 @@ async function downloadAndBuild(manifestIndex) {
   const items = await fetchJson(BUNGIE_BASE + itemsPath);
   console.log('Scaricamento definizioni plug set...');
   const plugSetDefs = await fetchJson(BUNGIE_BASE + plugSetsPath);
+  console.log('Scaricamento definizioni stagioni...');
+  const seasonDefs = await fetchJson(BUNGIE_BASE + seasonsPath);
 
   console.log('Costruzione cache...');
-  const slim = buildSlimCache(manifestIndex.Response.version, items, plugSetDefs);
+  const slim = buildSlimCache(manifestIndex.Response.version, items, plugSetDefs, seasonDefs);
 
   if (!fs.existsSync(CACHE_DIR)) {
     fs.mkdirSync(CACHE_DIR, { recursive: true });
