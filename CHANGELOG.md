@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.1.0](https://github.com/Smailen5/godroll-d2/compare/v1.0.0...v1.1.0) (2026-07-23)
+
+
+### Nuove funzionalità
+
+* aggiunge CLI interattiva per gestire wishlist DIM ([#63](https://github.com/Smailen5/godroll-d2/issues/63)) ([59c364a](https://github.com/Smailen5/godroll-d2/commit/59c364a7bd837797c27196dc90cf5fc7fb62e0c3))
+* aggiunge nuovi roll PvE da blueberries.gg ([#64](https://github.com/Smailen5/godroll-d2/issues/64)) ([d2f1e3f](https://github.com/Smailen5/godroll-d2/commit/d2f1e3fbd530cd35ee703437a53f16a5a03e591e))
+* aggiunge roll tempesta infinita e rosa ([#62](https://github.com/Smailen5/godroll-d2/issues/62)) ([173c248](https://github.com/Smailen5/godroll-d2/commit/173c24853d36bb62ea32768f35dff3866ca52389))
+
+
+### Refactoring
+
+* utilizza il manifest Bungie per risolvere armi e perk ([#59](https://github.com/Smailen5/godroll-d2/issues/59)) ([59e6e91](https://github.com/Smailen5/godroll-d2/commit/59e6e913d5dd6ea0876b7a9432e9d44f380c6ecc))
+
 ## [1.0.0](https://github.com/Smailen5/godroll-d2/compare/v0.5.0...v1.0.0) (2026-07-07)
 
 
