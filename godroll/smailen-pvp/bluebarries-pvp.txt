@@ -1,0 +1,92 @@
+title:Bluebarries godroll per il pvp
+description:Wishlist personale ottenuta incrociando i dati tra bluebarries.gg e light.gg
+
+// Fame Ruggente (Fucile automatico)
+//notes:bluebarries roll pve
+dimwishlist:item=214545213&perks=1840239774,3230963543,776531651,2048641572,515704826#notes:godroll, prodigio velocita di ricarica
+dimwishlist:item=214545213&perks=1840239774,3230963543,3523296417,3425386926,515704826#notes:alternativa, prodigio in velocita di ricarica
+dimwishlist:item=214545213&perks=1840239774,3230963543,776531651,3425386926,515704826#notes:alternativa, prodigio in velocita di ricarica
+dimwishlist:item=214545213&perks=1840239774,3230963543,3523296417,2048641572,515704826#notes:alternativa, prodigio in velocita di ricarica
+
+// Senza Esitazione (Fucile automatico)
+//notes:bluebarries roll pve
+dimwishlist:item=1801007332&perks=1840239774,106909392,2980589453,4293542123,0#notes:godroll per curare gli alleati e uccidere i nemici, prodigio in velocita di ricarica
+dimwishlist:item=1801007332&perks=1840239774,106909392,2980589453,2298656195,0#notes:light.gg roll pve, godroll consigliato, prodigio in gittata o velocita di ricarica
+dimwishlist:item=1801007332&perks=1840239774,106909392,1820235745,4293542123,0#notes:light roll pve, alternativa al godroll, prodigio in gittata o velocita di ricarica
+
+// DECATUR 02 (Fucile automatico)
+//notes:bluebarries roll pve
+dimwishlist:item=1850748385&perks=1840239774,106909392,2980589453,2298656195,0#notes:godroll per supportare gli alleati, prodigio in velocita di ricarica
+dimwishlist:item=1850748385&perks=1840239774,106909392,2980589453,692399809,0#notes:alternativa godroll, prodigio in velocita di ricarica
+dimwishlist:item=1850748385&perks=1840239774,106909392,2922950962,2298656195,0#notes:alternativa godroll, prodigio in velocita di ricarica
+dimwishlist:item=1850748385&perks=1840239774,106909392,2922950962,692399809,0#notes:alternativa godroll, prodigio in velocita di ricarica
+dimwishlist:item=1850748385&perks=1840239774,106909392,243981275,2298656195,0#notes:alternativa godroll, prodigio in velocita di ricarica
+dimwishlist:item=1850748385&perks=1840239774,106909392,243981275,692399809,0#notes:alternativa godroll, prodigio in velocita di ricarica
+
+// Apice della Stagione (Mitraglietta)
+//notes:bluebarries roll pve
+dimwishlist:item=2965080304&perks=1840239774,3230963543,3017780555,4293542123,0#notes:godroll, prodigio in velocita di ricarica
+dimwishlist:item=2965080304&perks=1840239774,3230963543,3017780555,3640170453,0#notes:alternativa, prodigio velocita di ricarica
+dimwishlist:item=2965080304&perks=1840239774,3230963543,3523296417,4293542123,0#notes:alternativa, prodigio velocita di ricarica
+dimwishlist:item=2965080304&perks=1840239774,3230963543,3523296417,3640170453,0#notes:alternativa, prodigio in velocita di ricarica
+dimwishlist:item=2965080304&perks=1840239774,3230963543,3523296417,2890807135,0#notes:alternativa, prodigio velocita di ricarica
+dimwishlist:item=2965080304&perks=1840239774,3230963543,243981275,4293542123,0#notes:alternativa, prodigio velocita di ricarica
+dimwishlist:item=2965080304&perks=1840239774,3230963543,243981275,3640170453,0#notes:alternativa, prodigio velocita di ricarica
+dimwishlist:item=2965080304&perks=1840239774,3230963543,243981275,2890807135,0#notes:alternativa, prodigio velocita di ricarica
+dimwishlist:item=2965080304&perks=1840239774,3230963543,3017780555,2890807135,0#notes:alternativa, prodigio velocita di ricarica
+
+// Sottomissione (Mitraglietta)
+//notes:bluebarries roll pve
+dimwishlist:item=3886416794&perks=1840239774,3230963543,3891536761,3640170453,0#notes:GODROLL, prodigio in velocita di ricarica
+dimwishlist:item=3886416794&perks=1840239774,3230963543,3643424744,3640170453,0#notes:alternativa, prodigio in velocita di ricarica
+
+// Multimach CCX (Mitraglietta)
+//notes:bluebarries roll pve
+dimwishlist:item=3211624072&perks=4090651448,3230963543,243981275,3891536761,0#notes:GODROLL, prodigio in velocita di ricarica o gittata
+
+// Orchidea Ardente (Cannone portatile)
+//notes:bluebarries roll pve
+dimwishlist:item=334964261&perks=1840239774,1885400500,776531651,3038247973,0#notes:prodigio in maneggevolezza
+dimwishlist:item=334964261&perks=1840239774,1885400500,776531651,2048641572,0#notes:prodigio in maneggevolezza
+
+// Pistola B-7 Modificata (Cannone portatile)
+//notes:bluebarries roll pve, prodigo in maneggevolezza
+dimwishlist:item=1872906663&perks=1840239774,1080094173,3824105627,124408337,0
+dimwishlist:item=1872906663&perks=1840239774,1080094173,3824105627,124408337,3713579091
+dimwishlist:item=1872906663&perks=1840239774,1080094173,3824105627,1909124648,3713579091
+dimwishlist:item=1872906663&perks=1840239774,1080094173,3523296417,124408337,3713579091
+dimwishlist:item=1872906663&perks=1840239774,1080094173,3523296417,1909124648,3713579091
+
+// Revisione A499 (Fucile di precisione)
+dimwishlist:item=593808239&perks=1840239774,3230963543,957782887,3764420437,0#notes:prodigio in maneggevolezza
+dimwishlist:item=593808239&perks=0,3230963543,957782887,3764420437,0
+
+// Vendetta Hezena (Lanciarazzi)
+dimwishlist:item=2265407516&perks=3525010810,3796465595,3987942396,1089671869,0
+
+// Randello di Velocità SV (Lanciagranate)
+dimwishlist:item=1762785663&perks=3525010810,2822142346,3523296417,243981275,0
+dimwishlist:item=1762785663&perks=3525010810,2822142346,3523296417,2048641572,0
+dimwishlist:item=1762785663&perks=3525010810,2822142346,776531651,243981275,0
+dimwishlist:item=1762785663&perks=3525010810,2822142346,776531651,2048641572,0
+
+// Volo della Festa (Lanciagranate)
+dimwishlist:item=3977654524&perks=3525010810,2822142346,3523296417,1089671869,1380061575
+dimwishlist:item=3977654524&perks=3525010810,2822142346,923806249,4049631843,1380061575
+dimwishlist:item=3977654524&perks=3525010810,2822142346,3523296417,243981275,1380061575
+
+// Psi Aeterna IV (Fucile a impulsi)
+dimwishlist:item=135971347&perks=3525010810,106909392,1115162408,1089671869,0
+dimwishlist:item=135971347&perks=3525010810,1087426260,1115162408,1089671869,0
+dimwishlist:item=135971347&perks=3525010810,1087426260,1115162408,3966416502,0
+dimwishlist:item=135971347&perks=3525010810,1087426260,1017229899,1089671869,0
+dimwishlist:item=135971347&perks=3525010810,1087426260,1017229899,3966416502,0
+
+// Retronuovo (Fucile a impulsi)
+dimwishlist:item=42435996&perks=3525010810,2420895100,3418782618,3081867624,0
+dimwishlist:item=42435996&perks=3525010810,2420895100,3418782618,2396489472,0
+dimwishlist:item=42435996&perks=3525010810,2420895100,831391274,3081867624,0
+dimwishlist:item=42435996&perks=3525010810,2420895100,831391274,2396489472,0
+
+
+
